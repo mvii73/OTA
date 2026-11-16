@@ -179,6 +179,13 @@ document.addEventListener("DOMContentLoaded", function() {
         button.addEventListener("click", loadInfo);
     }
 
+    const updateButton = getElement("check-app-updates");
+    if (updateButton) {
+        updateButton.addEventListener("click", function() {
+            checkForAppUpdate(true);
+        });
+    }
+
     const firstGroup = document.querySelector(".info-group");
     if (firstGroup && !firstGroup.open) {
         firstGroup.open = true;

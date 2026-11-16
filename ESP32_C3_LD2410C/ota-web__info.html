@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/style.css?v=20">
+    <link rel="stylesheet" href="/style.css?v=21">
 </head>
 <body>
 <header>
@@ -29,6 +29,16 @@
     <details class="settings-panel info-panel info-group" open>
         <summary class="settings-panel-title info-group-title">Aplikacja</summary>
         <dl id="application-info" class="info-list"></dl>
+        <div class="settings-actions info-actions">
+            <button id="check-app-updates" type="button">Sprawdź aktualizacje</button>
+        </div>
+        <section id="ota-update" class="ota-update" aria-live="polite" hidden>
+            <div class="ota-update-copy">
+                <strong id="ota-update-title"></strong>
+                <span id="ota-update-message"></span>
+            </div>
+            <button id="ota-update-button" type="button" hidden>Aktualizuj</button>
+        </section>
     </details>
     <details class="settings-panel info-panel info-group">
         <summary class="settings-panel-title info-group-title">Kontroler</summary>
@@ -56,6 +66,7 @@
     ESP32_C3_LD2410C
 </footer>
 
-<script src="/info.js?v=8"></script>
+<script src="/ota.js?v=1"></script>
+<script src="/info.js?v=9"></script>
 </body>
 </html>
