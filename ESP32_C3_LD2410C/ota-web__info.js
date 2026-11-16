@@ -40,14 +40,16 @@ function renderInfo(data) {
     const rx = sensor.rx || {};
     const tx = sensor.tx || {};
 
-    renderSection("application-info", [
+    const applicationFields = [
         ["Nazwa", application.name],
-        ["Wersja", application.github_version || application.version],
-        ["Data wydania", application.release_date], ["Build", application.build],
-        ["Commit Git", application.git_commit],
-        ["Stan kodu przy instalacji", application.git_dirty === null || application.git_dirty === undefined ? null : (application.git_dirty ? "lokalne zmiany" : "zgodny z repozytorium")],
+        ["Wersja", application.github_version || application.version || application.git_commit],
+        ["Data wydania", application.release_date],
+        ["Commit", application.git_commit],
         ["Wgrano", application.installed_at]
-    ]);
+    ].filter(function(field) {
+        return field[1] !== null && field[1] !== undefined && field[1] !== "";
+    });
+    renderSection("application-info", applicationFields);
     renderSection("controller-info", [
         ["Urządzenie", controller.esp_model],
         ["MicroPython", firmware.micropython],
