@@ -305,8 +305,23 @@ async function installAppUpdate(version, manifest) {
             throw new Error(result.error || "Instalacja nie powiodła się.");
         }
 
+        const title = getOtaElement("ota-update-title");
+        button.hidden = true;
+        title.textContent = "Aktualizacja zgłoszona";
         message.textContent =
-            "Zainstalowano " + version + ". Czujnik uruchamia się ponownie…";
+            "Czujnik uruchamia się ponownie. Czekam na potwierdzenie wersji…";
+
+        const installedVersion = await waitForInstalledVersion(version);
+        if (installedVersion) {
+            title.textContent = "Aktualizacja zakończona";
+            message.textContent =
+                "Czujnik działa już w wersji " + installedVersion + ".";
+        } else {
+            title.textContent = "Nie potwierdzono aktualizacji";
+            message.textContent =
+                "Nie udało się potwierdzić wersji " + version +
+                " po ponownym uruchomieniu. Odśwież stronę i sprawdź wersję urządzenia.";
+        }
     } catch (error) {
         console.error("OTA update failed:", error);
         if (!installSubmitted || installResponseReceived) {
@@ -316,9 +331,46 @@ async function installAppUpdate(version, manifest) {
                 console.warn("OTA staging cleanup failed:", abortError);
             }
         }
+
+
         message.textContent = installSubmitted && !installResponseReceived
             ? "Nie można potwierdzić wyniku. Sprawdź wersję po ponownym uruchomieniu."
             : "Aktualizacja nie powiodła się: " + error.message;
         button.disabled = false;
     }
+}
+
+
+async function waitForInstalledVersion(targetVersion) {
+    const attempts = 30;
+
+    for (let attempt = 0; attempt < attempts; attempt++) {
+        await new Promise(function(resolve) {
+            window.setTimeout(resolve, 2000);
+        });
+
+        try {
+            const response = await fetch("/device-info", { cache: "no-store" });
+            if (!response.ok) {
+                continue;
+            }
+
+            const deviceInfo = await response.json();
+            const installedVersion =
+                deviceInfo.application && deviceInfo.application.github_version;
+            const comparison =
+                compareReleaseVersions(installedVersion, targetVersion);
+
+            if (
+                installedVersion === targetVersion ||
+                (comparison !== null && comparison >= 0)
+            ) {
+                return installedVersion;
+            }
+        } catch (error) {
+            // The device is temporarily unreachable while it reboots.
+        }
+    }
+
+    return null;
 }
