@@ -2,7 +2,9 @@
 
 const OTA_BASE_URL =
     "https://raw.githubusercontent.com/mvii73/OTA/ota/ESP32_C3_LD2410C";
-const OTA_LATEST_URL = OTA_BASE_URL + "/latest.json";
+const OTA_LATEST_URL =
+    "https://api.github.com/repos/mvii73/OTA/contents/" +
+    "ESP32_C3_LD2410C/latest.json?ref=ota";
 
 
 function getOtaElement(id) {
@@ -84,7 +86,15 @@ async function checkForAppUpdate(manualCheck) {
         }
 
         const deviceInfo = await deviceResponse.json();
-        const latest = await releaseResponse.json();
+        const latestFile = await releaseResponse.json();
+        if (
+            latestFile.encoding !== "base64" ||
+            typeof latestFile.content !== "string"
+        ) {
+            throw new Error("Odpowiedź GitHub API nie zawiera pliku latest.json.");
+        }
+        const latestContent = atob(latestFile.content.replace(/\s/g, ""));
+        const latest = JSON.parse(latestContent);
         const installedVersion =
             deviceInfo.application && deviceInfo.application.github_version;
         const latestVersion = latest.version;
