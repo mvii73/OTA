@@ -41,9 +41,9 @@ function renderInfo(data) {
     const tx = sensor.tx || {};
 
     renderSection("application-info", [
-        ["Nazwa", application.name], ["Wersja", application.version],
+        ["Nazwa", application.name],
+        ["Wersja", application.github_version || application.version],
         ["Data wydania", application.release_date], ["Build", application.build],
-        ["Wersja GitHub", application.github_version],
         ["Commit Git", application.git_commit],
         ["Stan kodu przy instalacji", application.git_dirty === null || application.git_dirty === undefined ? null : (application.git_dirty ? "lokalne zmiany" : "zgodny z repozytorium")],
         ["Wgrano", application.installed_at]
@@ -106,7 +106,7 @@ function updateFooter(application) {
 function formatFooterText(application) {
     application = application || {};
 
-    const version = application.version;
+    const version = application.github_version || application.version;
     const releaseDate = application.release_date;
     const installedAt = application.installed_at;
 

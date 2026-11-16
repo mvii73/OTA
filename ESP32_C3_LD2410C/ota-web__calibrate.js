@@ -616,7 +616,7 @@ function formatFooterText(application) {
 
     application = application || {};
 
-    const version = application.version;
+    const version = application.github_version || application.version;
     const releaseDate = application.release_date;
     const installedAt = application.installed_at;
 

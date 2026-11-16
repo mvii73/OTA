@@ -167,17 +167,25 @@ main {
     display: none;
 }
 
-.ota-update {
+#normal-content .ota-update {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 18px;
     padding: 14px 16px;
-    background: var(--panel);
+    background: #dbeafe;
     border: 1px solid var(--info);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+}
+
+#normal-content .ota-update-copy strong {
+    color: #1e3a8a;
+}
+
+#normal-content .ota-update-copy span {
+    color: #334e78;
 }
 
 .ota-update[hidden] {
@@ -200,7 +208,7 @@ main {
 }
 
 @media (max-width: 480px) {
-    .ota-update {
+    #normal-content .ota-update {
         align-items: stretch;
         flex-direction: column;
     }
