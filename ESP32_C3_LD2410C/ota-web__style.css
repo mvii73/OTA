@@ -167,17 +167,29 @@ main {
     display: none;
 }
 
-#normal-content .ota-update {
+.ota-update {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 18px;
     padding: 14px 16px;
-    background: #dbeafe;
+    background: var(--panel);
     border: 1px solid var(--info);
     border-radius: var(--radius);
     box-shadow: var(--shadow);
+}
+
+.ota-update-copy strong {
+    color: var(--text);
+}
+
+.ota-update-copy span {
+    color: var(--text-muted);
+}
+
+#normal-content .ota-update {
+    background: #dbeafe;
 }
 
 #normal-content .ota-update-copy strong {
@@ -198,7 +210,6 @@ main {
 }
 
 .ota-update-copy span {
-    color: var(--text-muted);
     font-size: 13px;
 }
 
@@ -208,7 +219,7 @@ main {
 }
 
 @media (max-width: 480px) {
-    #normal-content .ota-update {
+    .ota-update {
         align-items: stretch;
         flex-direction: column;
     }

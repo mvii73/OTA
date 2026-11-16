@@ -182,8 +182,8 @@ async function checkForAppUpdate(manualCheck) {
 
         title.textContent = "Dostępna aktualizacja";
         message.textContent =
-            "Wersja " + latestVersion + " jest dostępna (zainstalowana: " +
-            (installedVersion || "nieznana") + ").";
+            "Nowa wersja: " + latestVersion +
+            " · Zainstalowana: " + (installedVersion || "nieznana") + ".";
         button.textContent = "Aktualizuj";
         button.hidden = false;
         button.onclick = function() {
@@ -307,15 +307,15 @@ async function installAppUpdate(version, manifest) {
 
         const title = getOtaElement("ota-update-title");
         button.hidden = true;
-        title.textContent = "Aktualizacja zgłoszona";
+        title.textContent = "Zainstalowano " + version;
         message.textContent =
             "Czujnik uruchamia się ponownie. Czekam na potwierdzenie wersji…";
 
         const installedVersion = await waitForInstalledVersion(version);
         if (installedVersion) {
-            title.textContent = "Aktualizacja zakończona";
+            title.textContent = "Uruchomiono prawidłowo";
             message.textContent =
-                "Czujnik działa już w wersji " + installedVersion + ".";
+                "Czujnik działa w wersji " + installedVersion + ".";
         } else {
             title.textContent = "Nie potwierdzono aktualizacji";
             message.textContent =
