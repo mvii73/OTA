@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESP32_C3_LD2410C · Informacje</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<header>
+    <div class="brand">
+        <span id="connection-dot" class="brand-dot" aria-hidden="true"></span>
+        <div class="brand-text">
+            <h1>ESP32_C3_LD2410C</h1>
+            <div class="subtitle">informacje o urządzeniu</div>
+        </div>
+    </div>
+    <div class="header-status">
+        <a href="/" class="connection-badge settings-back-link">&larr; Pulpit</a>
+    </div>
+</header>
+
+<main>
+    <div id="info-message" class="settings-message" role="status">Wczytywanie danych…</div>
+
+    <details class="settings-panel info-panel info-group" open>
+        <summary class="settings-panel-title info-group-title">Aplikacja</summary>
+        <dl id="application-info" class="info-list"></dl>
+    </details>
+    <details class="settings-panel info-panel info-group">
+        <summary class="settings-panel-title info-group-title">Kontroler</summary>
+        <dl id="controller-info" class="info-list"></dl>
+    </details>
+    <details class="settings-panel info-panel info-group">
+        <summary class="settings-panel-title info-group-title">Czujnik</summary>
+        <dl id="sensor-info" class="info-list"></dl>
+    </details>
+    <details class="settings-panel info-panel info-group">
+        <summary class="settings-panel-title info-group-title">Bluetooth</summary>
+        <dl id="ble-info" class="info-list"></dl>
+    </details>
+    <details class="settings-panel info-panel info-group">
+        <summary class="settings-panel-title info-group-title">Sieć</summary>
+        <dl id="network-info" class="info-list"></dl>
+    </details>
+
+    <div class="settings-actions info-actions">
+        <button id="refresh-info" type="button">Odśwież dane</button>
+    </div>
+</main>
+
+<footer id="app-footer">
+    ESP32_C3_LD2410C
+</footer>
+
+<script src="/info.js?v=8"></script>
+</body>
+</html>

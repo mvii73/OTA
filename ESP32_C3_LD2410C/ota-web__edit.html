@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ESP32_C3_LD2410C · Ustawienia</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/style.css?v=20">
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <span id="connection-dot" class="brand-dot"></span>
+        <div class="brand-text">
+            <h1>ESP32_C3_LD2410C</h1>
+            <div class="subtitle">ustawienia czujnika</div>
+        </div>
+    </div>
+
+    <div class="header-status">
+        <a href="/" class="connection-badge settings-back-link">
+            &larr; Pulpit
+        </a>
+    </div>
+</header>
+
+
+<main>
+
+    <form id="settings-form">
+
+        <!-- ------------------------------------------------
+             Czułość bramek
+             ------------------------------------------------- -->
+
+        <section class="settings-panel">
+
+            <div class="settings-panel-title">Czułość bramek</div>
+
+            <div class="sensitivity-presets" aria-label="Presety czułości">
+                <span>Preset:</span>
+                <button type="button" data-sensitivity-preset="default">Domyślne</button>
+                <button type="button" data-sensitivity-preset="quiet">Cichy pokój</button>
+                <button type="button" data-sensitivity-preset="sensitive">Wyższa czułość</button>
+            </div>
+
+            <div class="gate-table">
+                <div class="gate-table-row gate-table-head">
+                    <span>Bramka</span>
+                    <span>Ruch</span>
+                    <span>Statyczna</span>
+                </div>
+                <div id="gate-table-body"></div>
+            </div>
+
+        </section>
+
+
+        <!-- ------------------------------------------------
+             Zasięg
+             ------------------------------------------------- -->
+
+        <section class="settings-panel">
+
+            <div class="settings-panel-title">Zasięg</div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="max_active_gate">Maksymalna aktywna bramka</label>
+                    <div class="settings-hint">
+                        Bramki powyżej tej wartości są całkowicie ignorowane (0&ndash;8, każda ~0.75&nbsp;m)
+                    </div>
+                </div>
+                <input
+                    type="number" id="max_active_gate" name="max_active_gate"
+                    min="0" max="8" required
+                >
+            </div>
+
+        </section>
+
+
+        <!-- ------------------------------------------------
+             Agregacja
+             ------------------------------------------------- -->
+
+        <section class="settings-panel">
+
+            <div class="settings-panel-title">Agregacja / szybkość reakcji</div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="slot_batch_frames">Klatek na slot</label>
+                    <div class="settings-hint">
+                        Czujnik wysyła ramki co ~100&nbsp;ms &middot; obecnie
+                        <strong id="slot_batch_seconds">&mdash;</strong> na slot
+                    </div>
+                </div>
+                <input
+                    type="number" id="slot_batch_frames" name="slot_batch_frames"
+                    min="1" max="200" required
+                >
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="min_presence_s">Min. czas obecności</label>
+                    <div class="settings-hint">
+                        Krótkie wykrycia poniżej tej wartości są ignorowane, np. 2–3 s
+                        nie liczą się jako prawdziwa obecność
+                    </div>
+                </div>
+                <input
+                    type="number" id="min_presence_s" name="min_presence_s"
+                    min="0" max="3600" required
+                >
+            </div>
+
+        </section>
+
+
+        <!-- ------------------------------------------------
+             Historia
+             ------------------------------------------------- -->
+
+        <section class="settings-panel">
+
+            <div class="settings-panel-title">Historia</div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="history_max_entries">Wpisów w puli</label>
+                    <div class="settings-hint">
+                        Historia obejmuje 24&nbsp;h wstecz &middot; to twardy limit liczby
+                        wpisów (ok. 130&nbsp;B RAM każdy), starsze wypadają
+                    </div>
+                </div>
+                <input
+                    type="number" id="history_max_entries" name="history_max_entries"
+                    min="1" max="500" required
+                >
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="history_page_size">Wpisów na stronę</label>
+                </div>
+                <input
+                    type="number" id="history_page_size" name="history_page_size"
+                    min="1" max="100" required
+                >
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="history_debug_enabled">Tryb debug</label>
+                    <div class="settings-hint">
+                        Dodaje do wpisów min/maks. energii dla każdej bramki 0&ndash;8.
+                        Czujnik pracuje wtedy w trybie inżynierskim (dłuższe ramki)
+                    </div>
+                </div>
+                <input type="checkbox" id="history_debug_enabled" name="history_debug_enabled">
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="history_debug_hours">Debug: godzin wstecz</label>
+                    <div class="settings-hint">
+                        Szczegóły per bramka są trzymane tylko dla tylu ostatnich godzin
+                        &middot; starsze wpisy zostają w wersji zwykłej
+                    </div>
+                </div>
+                <input
+                    type="number" id="history_debug_hours" name="history_debug_hours"
+                    min="1" max="24" required
+                >
+            </div>
+
+        </section>
+
+
+        <!-- ------------------------------------------------
+             Serwer EMS (webhook obecności)
+             ------------------------------------------------- -->
+
+        <section class="settings-panel">
+
+            <div class="settings-panel-title">Serwer EMS</div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="webhook_enabled">Włącz webhook</label>
+                    <div class="settings-hint">
+                        Wyłącza całkowicie wywołania do <strong>/ems/webhook</strong>
+                    </div>
+                </div>
+                <input type="checkbox" id="webhook_enabled" name="webhook_enabled">
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="webhook_host">Adres IP serwera</label>
+                    <div class="settings-hint">
+                        Przy wykryciu obecności wywoływane jest
+                        <strong>/ems/webhook/presence/start</strong>, przy jej zaniku
+                        <strong>/ems/webhook/presence/stop</strong> &middot; puste = wyłączone
+                    </div>
+                </div>
+                <input
+                    type="text" id="webhook_host" name="webhook_host"
+                    maxlength="64" placeholder="192.168.1.202"
+                    autocomplete="off" spellcheck="false"
+                    pattern="[A-Za-z0-9._\-]*"
+                >
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="webhook_port">Port</label>
+                </div>
+                <input
+                    type="number" id="webhook_port" name="webhook_port"
+                    min="1" max="65535" required
+                >
+            </div>
+
+            <div class="settings-row">
+                <div class="settings-row-text">
+                    <label for="webhook_retry_pause_s">Wstrzymanie po błędach</label>
+                    <div class="settings-hint">
+                        Po tylu sekundach nieudanych prób komunikacja jest wstrzymywana na ten sam czas
+                    </div>
+                </div>
+                <input
+                    type="number" id="webhook_retry_pause_s" name="webhook_retry_pause_s"
+                    min="0" max="86400" step="1" required
+                >
+            </div>
+
+            <div id="webhook-notice" class="settings-message" style="display:none; margin-top:12px;"></div>
+            <div class="settings-actions" style="justify-content:flex-end; margin-top:8px;">
+                <button type="button" id="webhook-retry-button" class="maintenance-button" style="display:none;">Ponów</button>
+            </div>
+
+        </section>
+
+
+        <div class="settings-actions">
+            <span id="settings-message" class="settings-message"></span>
+            <button type="submit" id="settings-submit">Zapisz zmiany</button>
+        </div>
+
+    </form>
+
+
+    <!-- ------------------------------------------------
+         Konserwacja
+         ------------------------------------------------- -->
+
+    <section class="settings-panel">
+
+        <div class="settings-panel-title">Konserwacja</div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label>Restart połączenia z czujnikiem</label>
+                <div class="settings-hint">
+                    Ponownie wysyła pełną konfigurację do czujnika LD2410C (bez restartu ESP32)
+                </div>
+            </div>
+            <button type="button" id="reset-sensor-button" class="maintenance-button">
+                Zresetuj czujnik
+            </button>
+        </div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label>Wyczyść historię</label>
+                <div class="settings-hint">
+                    Usuwa wszystkie zapisane wpisy historii obecności &mdash; nieodwracalne
+                </div>
+            </div>
+            <button type="button" id="clear-history-button" class="maintenance-button maintenance-button-danger">
+                Wyczyść historię
+            </button>
+        </div>
+
+        <div class="settings-actions">
+            <span id="maintenance-message" class="settings-message"></span>
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer id="app-footer">
+    ESP32_C3_LD2410C
+</footer>
+
+
+<script src="/edit.js?v=6"></script>
+
+</body>
+</html>

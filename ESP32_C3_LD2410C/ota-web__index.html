@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ESP32_C3_LD2410C · Radar obecności</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="/style.css?v=21">
+</head>
+
+<body>
+
+<header>
+
+    <div class="brand">
+
+        <span
+            id="connection-dot"
+            class="brand-dot"
+            aria-hidden="true"
+        ></span>
+
+        <div class="brand-text">
+
+            <h1>ESP32_C3_LD2410C</h1>
+
+            <div class="subtitle">
+                radar obecności &middot; mmWave
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <div class="menu">
+
+        <button
+            id="menu-button"
+            class="menu-button"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-label="Menu"
+        >
+            <span class="menu-icon"></span>
+        </button>
+
+
+        <nav
+            id="menu-dropdown"
+            class="menu-dropdown"
+            hidden
+        >
+            <a href="/edit">
+                Ustawienia czujnika
+            </a>
+
+            <a href="/calibrate" id="menu-calibrate-link">
+                Kalibracja czułości
+            </a>
+
+            <a href="/wifi">
+                Sieć WiFi
+            </a>
+
+            <a href="/info-page">
+                Informacje o urządzeniu
+            </a>
+        </nav>
+
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- =========================================================
+         NORMALNA ZAWARTOŚĆ PANELU
+         Ukrywana po utracie połączenia.
+         ========================================================= -->
+
+    <div id="normal-content">
+
+        <section
+            id="ota-update"
+            class="ota-update"
+            aria-live="polite"
+            hidden
+        >
+            <div class="ota-update-copy">
+                <strong id="ota-update-title">Dostępna aktualizacja</strong>
+                <span id="ota-update-message"></span>
+            </div>
+            <button id="ota-update-button" type="button">
+                Aktualizuj
+            </button>
+        </section>
+
+        <!-- -------------------------------------------------------
+             Hero: bieżąca obecność
+             ---------------------------------------------------- -->
+
+        <section
+            class="hero"
+            aria-label="Bieżący status obecności"
+        >
+
+            <div
+                class="hero-sweep"
+                aria-hidden="true"
+            ></div>
+
+
+            <div class="hero-main">
+
+                <div
+                    id="presence-status"
+                    class="hero-status"
+                >
+                    &mdash;&mdash;&mdash;
+                </div>
+
+
+                <div id="hero-sub" class="hero-sub">
+                    w polu widzenia czujnika
+                </div>
+
+                <div
+                    id="filter-indicator"
+                    class="filter-indicator"
+                    aria-live="polite"
+                    hidden
+                ></div>
+
+            </div>
+
+
+            <div class="hero-duration">
+
+                <span class="hero-duration-label">
+                    czas trwania
+                </span>
+
+
+                <strong
+                    id="presence-duration"
+                    class="hero-duration-value"
+                >
+                    &mdash;&mdash;
+                </strong>
+
+            </div>
+
+
+            <!-- Typ obecności + pomiary (widoczne tylko gdy WYKRYTO) -->
+
+            <div
+                id="hero-measurements"
+                class="hero-measurements"
+                hidden
+            >
+
+                <div
+                    id="hero-type"
+                    class="hero-type"
+                >
+                    &mdash;
+                </div>
+
+
+                <div class="hero-measurement-grid">
+
+                    <div class="hero-measurement-item">
+
+                        <div class="hero-measurement-label">
+                            Ruch
+                        </div>
+
+                        <div class="hero-measurement-value">
+                            <strong id="hero-motion-distance">&mdash;</strong>
+                            <span>odległość</span>
+                        </div>
+
+                        <div class="hero-measurement-value">
+                            <strong id="hero-motion-energy">&mdash;</strong>
+                            <span>energia</span>
+                        </div>
+
+                    </div>
+
+
+                    <div class="hero-measurement-item">
+
+                        <div class="hero-measurement-label">
+                            Obecność stacjonarna
+                        </div>
+
+                        <div class="hero-measurement-value">
+                            <strong id="hero-stationary-distance">&mdash;</strong>
+                            <span>odległość</span>
+                        </div>
+
+                        <div class="hero-measurement-value">
+                            <strong id="hero-stationary-energy">&mdash;</strong>
+                            <span>energia</span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- Rozwijane szczegóły bieżącego stanu -->
+
+            <details
+                id="hero-details"
+                class="hero-details"
+            >
+
+                <summary>
+                    Szczegóły
+                </summary>
+
+                <div
+                    id="hero-details-body"
+                    class="hero-details-body"
+                ></div>
+
+            </details>
+
+        </section>
+
+
+        <!-- -------------------------------------------------------
+             Poprzednie stany
+             ---------------------------------------------------- -->
+
+        <section class="log-section">
+
+            <div class="log-header">
+
+                <h2>
+                    Poprzednie stany
+                </h2>
+
+                <span
+                    id="history-pool"
+                    class="history-page-info"
+                    title="Surowe wpisy w pamięci / limit puli · pozycje na liście po scaleniu krótkich wykryć"
+                ></span>
+
+            </div>
+
+
+            <div
+                id="history"
+                class="log-body"
+            >
+                Ładowanie poprzednich stanów&hellip;
+            </div>
+
+        </section>
+
+    </div>
+
+
+    <!-- =========================================================
+         EKRAN UTRATY POŁĄCZENIA
+
+         Domyślnie ukryty.
+         script.js pokazuje go po błędzie /status.
+         ========================================================= -->
+
+    <section
+        id="connection-error"
+        class="connection-error"
+        hidden
+        role="alert"
+        aria-live="assertive"
+        aria-labelledby="connection-error-title"
+    >
+
+        <div class="connection-error-card">
+
+
+            <!-- Ikona -->
+
+            <div
+                class="connection-error-icon"
+                aria-hidden="true"
+            >
+                ×
+            </div>
+
+
+            <!-- Tytuł -->
+
+            <h2 id="connection-error-title">
+                Zerwane połączenie
+            </h2>
+
+
+            <!-- Główny komunikat -->
+
+            <p>
+                Nie można połączyć się z urządzeniem.
+            </p>
+
+
+            <!-- Instrukcja -->
+
+            <p>
+                Sprawdź, czy urządzenie jest włączone
+                i podłączone do sieci WiFi.
+                <br>
+                Jeśli urządzenie jest włączone,
+                sprawdź, czy jego adres IP nie uległ zmianie.
+            </p>
+
+
+            <!-- Ręczna próba -->
+
+            <button
+                id="connection-retry"
+                class="connection-retry"
+                type="button"
+            >
+                Spróbuj ponownie
+            </button>
+
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================================
+         MODAL: POMIJAJ PODOBNE ODCZYTY
+
+         Domyślnie ukryty. Otwierany przyciskiem "Pomijaj podobne"
+         przy krótkich wpisach WYKRYTO na liście "Poprzednie stany".
+         ========================================================= -->
+
+    <div
+        id="history-filter-modal"
+        class="modal-overlay"
+        hidden
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="history-filter-title"
+    >
+
+        <div class="modal-card">
+
+            <h2 id="history-filter-title">
+                Pomijaj podobne odczyty
+            </h2>
+
+            <p class="settings-hint">
+                Wybierz, jakiego rodzaju krótkie/słabe odczyty mają być
+                od teraz traktowane jak brak obecności.
+            </p>
+
+            <div
+                id="history-filter-options"
+                class="modal-options"
+            ></div>
+
+            <div
+                id="history-filter-message"
+                class="settings-message"
+            ></div>
+
+            <div class="modal-actions">
+                <button
+                    id="history-filter-cancel"
+                    type="button"
+                    class="maintenance-button"
+                >
+                    Anuluj
+                </button>
+
+                <button
+                    id="history-filter-confirm"
+                    type="button"
+                >
+                    Zastosuj
+                </button>
+            </div>
+
+        </div>
+
+    </div>
+
+</main>
+
+
+<footer id="app-footer">
+    ESP32_C3_LD2410C
+</footer>
+
+
+<script src="/script.js?v=28"></script>
+
+</body>
+</html>

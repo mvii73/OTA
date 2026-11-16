@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>ESP32_C3_LD2410C · Kalibracja</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/style.css?v=20">
+</head>
+
+<body>
+
+<header>
+    <div class="brand">
+        <span id="connection-dot" class="brand-dot"></span>
+        <div class="brand-text">
+            <h1>ESP32_C3_LD2410C</h1>
+            <div class="subtitle">kalibracja czułości</div>
+        </div>
+    </div>
+
+    <div class="header-status">
+        <a href="/" class="connection-badge settings-back-link">
+            &larr; Pulpit
+        </a>
+    </div>
+</header>
+
+
+<main>
+
+    <!-- ------------------------------------------------
+         KROK 1: start / ostrzeżenie
+         ------------------------------------------------- -->
+
+    <section id="calib-step-start" class="settings-panel">
+
+        <div class="settings-panel-title">Kalibracja czułości bramek</div>
+
+        <p class="settings-hint">
+            <strong>Opuść pomieszczenie i nie wchodź do niego przez cały
+            czas trwania pomiaru.</strong>
+            Czujnik przechodzi na czas pomiaru w tryb inżynierski, w
+            którym każda pojedyncza ramka (~co 100&nbsp;ms) niesie
+            surową energię tła <strong>ze wszystkich zakresów
+            odległości naraz</strong> - bez przełączania się między
+            nimi i bez ryzyka, że silniejszy szum w jednym zakresie
+            "zamaskuje" słabszy w innym. Im dłuższy pomiar, tym więcej
+            niezależnych próbek na każdy zakres i większa szansa na
+            złapanie rzadkiego, pulsującego źródła szumu. Po
+            zakończeniu lub anulowaniu pomiaru czujnik automatycznie
+            wraca do normalnego trybu pracy.
+        </p>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label for="calib_duration_s">Czas trwania pomiaru</label>
+                <div class="settings-hint">
+                    Sekundy &middot; pomieszczenie musi być puste przez
+                    cały ten czas
+                </div>
+            </div>
+            <input
+                type="number" id="calib_duration_s"
+                min="60" max="3600" value="300"
+            >
+        </div>
+
+        <div class="settings-actions">
+            <span id="calib-start-message" class="settings-message"></span>
+            <button type="button" id="calib-start-button">
+                Rozpocznij kalibrację
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- ------------------------------------------------
+         KROK 2: pomiar w toku
+         ------------------------------------------------- -->
+
+    <section id="calib-step-progress" class="settings-panel" hidden>
+
+        <div class="settings-panel-title">Pomiar w toku</div>
+
+        <p class="settings-hint">
+            Pozostań poza pomieszczeniem do końca pomiaru. Wszystkie
+            zakresy są mierzone jednocześnie - tabela poniżej rośnie
+            na bieżąco.
+        </p>
+
+        <div class="calib-countdown">
+            <span id="calib-remaining">&mdash;</span> s pozostało
+        </div>
+
+        <div class="gate-table">
+            <div class="gate-table-row gate-table-head">
+                <span>Bramka</span>
+                <span>Ruch</span>
+                <span>Statyczna</span>
+            </div>
+            <div id="calib-progress-body"></div>
+        </div>
+
+        <div class="settings-actions">
+            <span id="calib-progress-message" class="settings-message"></span>
+            <button
+                type="button" id="calib-cancel-button"
+                class="maintenance-button maintenance-button-danger"
+            >
+                Anuluj
+            </button>
+        </div>
+
+    </section>
+
+
+    <!-- ------------------------------------------------
+         KROK 3: wynik
+         ------------------------------------------------- -->
+
+    <section id="calib-step-result" class="settings-panel" hidden>
+
+        <div class="settings-panel-title">Wynik kalibracji</div>
+
+        <p class="settings-hint">
+            Pod każdym polem: zaobserwowany szum tła i liczba
+            zarejestrowanych odczytów w danym zakresie. Proponowana
+            czułość to szum + margines
+            <strong id="calib-margin">&mdash;</strong> dla każdej
+            bramki. Zapisanie nadpisze bieżące ustawienia czułości
+            bramek (można je poprawić przed zapisem).
+        </p>
+
+        <div class="gate-table">
+            <div class="gate-table-row gate-table-head">
+                <span>Bramka</span>
+                <span>Ruch</span>
+                <span>Statyczna</span>
+            </div>
+            <div id="calib-result-body"></div>
+        </div>
+
+        <div class="settings-actions">
+            <span id="calib-result-message" class="settings-message"></span>
+            <button
+                type="button" id="calib-repeat-button"
+                class="maintenance-button"
+            >
+                Powtórz pomiar
+            </button>
+            <button type="button" id="calib-save-button">
+                Zapisz jako czułość bramek
+            </button>
+        </div>
+
+        <!-- Pytanie o czyszczenie historii - pojawia się dopiero
+             po udanym zapisie nowej czułości. -->
+        <div
+            id="calib-history-prompt"
+            class="settings-row"
+            hidden
+        >
+            <div class="settings-row-text">
+                <label>Wyczyścić dotychczasową historię?</label>
+                <div class="settings-hint">
+                    Stare wpisy powstały przy poprzedniej czułości i mogą
+                    już nie być miarodajne
+                </div>
+            </div>
+            <span class="settings-row-buttons">
+                <button type="button" id="calib-history-keep-button" class="maintenance-button">
+                    Zostaw
+                </button>
+                <button type="button" id="calib-history-clear-button" class="maintenance-button maintenance-button-danger">
+                    Wyczyść historię
+                </button>
+            </span>
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer id="app-footer">
+    ESP32_C3_LD2410C
+</footer>
+
+
+<script src="/calibrate.js?v=8"></script>
+
+</body>
+</html>
