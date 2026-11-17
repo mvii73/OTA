@@ -28,7 +28,9 @@
     function compareVersions(left, right) {
 
         function parse(value) {
-            var match = String(value || "").match(/^v?(\d+(?:\.\d+)*)(?:-(\d+)-g[0-9a-f]+)?$/i);
+            // tylko tagi "v..." - skrot commita z samych cyfr (np. "2994674" z install.py
+            // przed pierwszym tagiem) bral sie za wersje 2994674 > 1.0.2
+            var match = String(value || "").match(/^v(\d+(?:\.\d+)*)(?:-(\d+)-g[0-9a-f]+)?$/i);
             if (!match) {
                 return null;
             }
