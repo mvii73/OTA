@@ -7,6 +7,7 @@ import core.locale as locale
 import core.wifi as wifi
 import core.server as server
 import core.ota as ota
+import core.watchdog as watchdog
 import ems.ems_service as ems
 import storage.ems_data as ems_storage
 import ems.control as alg
@@ -988,8 +989,16 @@ def _flush_before_reset(reason):
 
 # Ctrl-C (tools/webrepl_reset.py przed machine.reset() przy wgrywaniu) - historia ogrzewania
 # zapisywana na flash co FLUSH_S, bez tego restart gubil do 30 min wykresow
+# WATCHDOG (core/watchdog.py) - od tego miejsca; boot() wyzej (WiFi, portal AP) bez niego
+try:
+    watchdog.start()
+except Exception as e:
+    print("[WDT] start nieudany:", e)
+
 try:
     while True:
+
+        watchdog.beat()
 
         # obrot petli pod blokada (watek serwera: zapytania spoza listy bez blokady czekaja na
         # koniec obrotu - core/server.py), pauza na koncu bez niej
@@ -1069,8 +1078,10 @@ try:
                 except Exception as e:
                     print("[EVENT LOG] flush:", e)
 
+                t_gc = time.ticks_ms()
                 gc.collect()
-                print("============== FREE RAM:", gc.mem_free())
+                print("============== FREE RAM: {} (gc {} ms)".format(
+                    gc.mem_free(), time.ticks_diff(time.ticks_ms(), t_gc)))
 
                 last_gc = now
 
@@ -1092,5 +1103,6 @@ try:
         # i tak czekalo w accept() do 0,5 s
         time.sleep_ms(getattr(config, "MAIN_LOOP_PAUSE_MS", 100) if server.threaded() else 50)
 except KeyboardInterrupt:
+    watchdog.pause()
     _flush_before_reset("przerwano")
     raise
