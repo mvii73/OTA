@@ -1,0 +1,208 @@
+/* ===== Ogrzewanie mieszkania (/heating): jasny wyglad aplikacji, uklad kafli ===== */
+/* zakladki: wyglad .dev-tab z www/style.css */
+.hh-tabs { margin-bottom: 16px; padding-top: 0; }
+.hh-tabs .dev-tab { font-size: 15px; padding: 10px 16px; }
+
+.hh-chart-controls { flex-wrap: wrap; gap: 10px 16px; }
+.hh-chart-controls label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--text-muted); }
+.hh-chart-controls select { font: inherit; font-size: 14px; color: var(--text); padding: 4px 8px; }
+
+/* zakladka Wykresy: lista wykresow uzytkownika (www/heating_home.js), kazdy z wlasnym wyborem wartosci */
+.hh-chart-card { padding: 10px 0 6px; border-bottom: 1px solid var(--hairline); }
+.hh-chart-card:last-of-type { border-bottom: 0; }
+.hh-chart-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.hh-chart-head .hero-chart-title { margin: 0; }
+.hh-chart-title { cursor: pointer; }
+.hh-chart-title:hover { text-decoration: underline; }
+.hh-chart-actions { margin-left: auto; display: flex; gap: 6px; }
+.hh-chart-actions .maintenance-button { padding: 4px 10px; font-size: 13px; }
+.hh-chart-edit { margin: 10px 0; padding: 12px 14px; border: 1px solid var(--hairline); border-radius: 8px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px 18px; }
+.hh-chart-edit fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.hh-chart-edit legend { font-size: 13px; font-weight: 600; padding: 0 0 4px; }
+.hh-chart-edit label { font-size: 13px; display: flex; align-items: center; gap: 6px; }
+.hh-chart-edit fieldset label input { margin: 0; }
+.hh-chart-name-edit, .hh-chart-edit-foot { grid-column: 1 / -1; }
+.hh-chart-name-edit input { font: inherit; font-size: 14px; padding: 4px 8px; flex: 0 1 320px; }
+.hh-chart-edit-foot { display: flex; justify-content: flex-end; }
+.hh-chart-foot { margin-top: 12px; }
+.hh-chart-status { font-size: 13px; color: var(--danger); }
+/* pasek zapisu listy wykresow: skad lista, niezapisane zmiany, "gdzie zapisac" */
+.hh-chart-save { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 10px; font-size: 13px; color: var(--text-muted); margin: -6px 0 6px; }
+.hh-chart-save b { color: var(--text); }
+.hh-chart-save .maintenance-button { padding: 4px 10px; font-size: 13px; }
+
+.hh-section {
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+    padding: 18px 22px 22px;
+    margin-bottom: 22px;
+}
+
+.hh-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--hairline); }
+.hh-head-right { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+.hh-mode-label { font-size: 15px; color: var(--text-muted); }
+.hh-mode-label b { color: var(--text); }
+.hh-head { align-items: center; }
+.hh-title { font-size: 20px; font-weight: 700; }
+.hh-note, .hh-muted { color: var(--text-muted); font-size: 14px; }
+.hh-empty { color: var(--text-muted); padding: 24px 0; }
+.hh-svg { width: 100%; height: auto; display: block; }
+.hh-click { cursor: pointer; }
+
+/* schemat: zrodla | zasilanie i powrot | pomieszczenia */
+/* lewy blok (kociol, bramka, dogrzewacz, pompa, zasilanie, powrot, a w trzecim wierszu kafle
+   zapotrzebowania i pogody pod dogrzewaczem i pompa) ma wlasna siatke 3 x 3 - wysokosc
+   wierszy wynika z tresci kafli, nie z dlugiej listy pomieszczen obok (inaczej kafle sie rozciagaly
+   i pod ostatnim wierszem zostawala pusta przestrzen) */
+.hh-diagram { display: flex; align-items: flex-start; gap: 18px; }
+.hh-left {
+    flex: none;
+    display: grid;
+    grid-template-columns: minmax(310px, 370px) minmax(310px, 370px) minmax(200px, 240px);
+    grid-template-rows: auto auto auto;
+    column-gap: 16px;
+    row-gap: 22px;
+    align-items: stretch;
+}
+.hh-boiler { grid-column: 1; grid-row: 1; margin-right: 0; }
+.hh-heater { grid-column: 1; grid-row: 2; }
+.hh-pump-tile { grid-column: 2; grid-row: 2; }
+.hh-gateway { grid-column: 2; grid-row: 1; }
+.hh-supply { grid-column: 3; grid-row: 1; align-self: center; }
+.hh-supply-wide { grid-column: 2 / 4; }
+.hh-return { grid-column: 3; grid-row: 2; align-self: center; }
+.hh-pump-img { width: 63px; }
+.hh-source, .hh-room, .hh-tile, .hh-card {
+    background: var(--panel); border: 1px solid var(--hairline); border-radius: 10px; box-shadow: var(--shadow);
+}
+.hh-source { padding: 14px 16px; border-left: 5px solid var(--hairline); transition: box-shadow .15s; display: flex; flex-direction: column; }
+.hh-source:hover, .hh-room:hover { box-shadow: 0 3px 10px rgba(20, 25, 30, .12); }
+.hh-source-on { border-left-color: #ea580c; }
+.hh-source-blocked { border-left-color: #b45309; background: #fffbeb; }
+.hh-source-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.hh-source-title { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.hh-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; flex: none; }
+.hh-badge { border: 1px solid; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+/* kafel zrodla: naglowek | dwie kolumny (wiersze u gory, obrazek na srodku swojej kolumny) | stopka;
+   kafle w jednym wierszu siatki maja rowna wysokosc - cialo zajmuje cala reszte, wiec obrazek
+   jest na srodku wysokosci kafla, a stopka zawsze na dole */
+.hh-source-body { flex: 1; display: flex; align-items: stretch; gap: 14px; }
+.hh-source-rows { flex: 1; min-width: 0; align-self: flex-start; }
+.hh-source-img { flex: none; width: 90px; display: flex; align-items: center; justify-content: center; }
+.hh-boiler-img { width: 72px; height: auto; display: block; }
+.hh-heater-img { width: 43px; }
+.hh-boiler-idle { filter: grayscale(1); opacity: .75; }
+.hh-foot { margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--hairline-soft); font-size: 14px; font-weight: 600; }
+.hh-kv { display: flex; justify-content: space-between; padding: 4px 0; font-size: 15px; border-bottom: 1px solid var(--hairline-soft); }
+.hh-kv span { color: var(--text-muted); }
+.hh-pump-state { font-weight: 700; }
+.hh-pump-unused { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 8px 10px; background: var(--panel-alt); border-radius: 8px; font-size: 14px; }
+.hh-pump b { margin-left: auto; }
+
+/* zasilanie / powrot: rury z kolorowymi liniami laczacymi kolumny */
+.hh-flow { display: flex; align-items: center; }
+.hh-line-h { flex: 1; height: 5px; border-radius: 3px; background: currentColor; min-width: 14px; }
+.hh-flow-hot { color: #ea580c; }
+.hh-flow-cold { color: #2563eb; }
+.hh-flow-off { color: #cbd5e1; }
+.hh-flow-box { text-align: center; padding: 10px 14px; border: 2px solid currentColor; border-radius: 10px; background: var(--panel); }
+.hh-flow-box small { display: block; color: var(--text-muted); font-size: 13px; }
+.hh-flow-box b { font-size: 24px; color: var(--text); }
+
+.hh-rooms { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; align-content: start; }
+.hh-room { padding: 12px 14px; }
+.hh-room-on { border-color: #fdba74; background: #fff7ed; }
+.hh-room-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.hh-room-temp { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 18px; font-size: 30px; font-weight: 700; line-height: 36px; margin: 6px 0; }
+.hh-room-hum { font-size: 22px; font-weight: 600; }
+/* linia temperatury: temperatura, ikony, a po prawej wilgotnosc i paski zaworu */
+.hh-room-right { margin-left: auto; align-self: center; display: flex; align-items: center; gap: 12px; }
+.hh-room-icons { display: flex; align-items: center; gap: 2px; align-self: center; }
+/* Material Symbols (www/heating_home.py) - wypelnione, kursor pomocy pod tooltip */
+.hh-icon { font-size: 32px; font-variation-settings: 'FILL' 1; cursor: help; }
+/* ludzik w glifie jest waski i niski - wiekszy rozmiar, ujemny margines, zeby nie rozpychal wiersza */
+.hh-icon-man { font-size: 42px; margin: -5px -6px; }
+.hh-room-foot { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.3; }
+.hh-room-schedule { margin-left: auto; text-decoration: none; white-space: nowrap; }
+.hh-bars { display: flex; gap: 3px; align-items: flex-end; }
+.hh-bars i { width: 8px; height: 26px; border-radius: 2px; display: block; }
+
+.hh-bar { display: flex; justify-content: flex-start; margin: 18px 0 14px; }
+.hh-tiles { margin-top: 24px; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.hh-tiles-left { grid-column: 1 / 3; grid-row: 3; margin-top: 0; grid-template-columns: repeat(4, 1fr); }
+.hh-tile { padding: 12px 16px; }
+.hh-tile-label { color: var(--text-muted); font-size: 14px; }
+.hh-tile-note { color: var(--text-muted); font-size: 13px; margin-top: 2px; }
+.hh-tile-value { font-size: 26px; font-weight: 700; margin-top: 4px; }
+
+.hh-btn {
+    background: var(--btn-secondary-bg); color: var(--text); border: 1px solid var(--btn-secondary-border); border-radius: 8px;
+    padding: 10px 20px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.hh-btn:hover:not(:disabled) { filter: brightness(.95); }
+.hh-btn:disabled { opacity: .45; cursor: default; }
+.hh-btn-mode { background: var(--btn-primary-bg); color: #fff; border-color: var(--btn-primary-bg); padding: 8px 18px; box-shadow: var(--shadow); }
+.hh-btn-green { background: #16a34a; border-color: #16a34a; color: #fff; }
+.hh-btn-green-outline { background: transparent; border-color: #16a34a; color: #16a34a; }
+.hh-btn-orange { background: #ea580c; border-color: #ea580c; color: #fff; }
+.hh-btn-orange-outline { background: transparent; border-color: #ea580c; color: #ea580c; }
+.hh-segs { display: flex; gap: 0; justify-content: center; margin: 0 0 6px; }
+.hh-seg { flex: 1; max-width: 160px; padding: 8px 12px; font: inherit; cursor: pointer; background: transparent; color: var(--text); border: 1px solid #ea580c; }
+.hh-seg:first-child { border-radius: 8px 0 0 8px; }
+.hh-seg:last-child { border-radius: 0 8px 8px 0; border-left: 0; }
+.hh-seg-on { background: #ea580c; color: #fff; }
+.hh-btn-small { padding: 4px 12px; font-size: 14px; }
+
+.hh-water-grid { display: grid; grid-template-columns: minmax(300px, 1fr) 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.hh-card { padding: 16px 18px; }
+.hh-card-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
+.hh-card .hh-btn { margin-top: 12px; width: 100%; }
+.hh-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--hairline-soft); }
+.hh-line span { color: var(--text-muted); }
+.hh-tank-card { display: flex; align-items: center; gap: 20px; }
+.hh-tank { width: 100px; flex: none; }
+.hh-big { font-size: 46px; font-weight: 700; line-height: 1.1; }
+.hh-mid { font-size: 20px; margin-bottom: 8px; }
+.hh-state { font-size: 16px; font-weight: 600; }
+.hh-plan-now td { font-weight: 700; }
+.hh-plan .history-measurements td { vertical-align: middle; }
+
+.hh-popup {
+    position: fixed; inset: 0; background: rgba(20, 25, 30, .45);
+    display: flex; align-items: center; justify-content: center; z-index: 100;
+}
+.hh-popup[hidden] { display: none; }
+.hh-modal {
+    background: var(--panel); color: var(--text); border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, .25);
+    padding: 22px 26px; min-width: 340px; max-width: 560px;
+}
+.hh-modal h3 { margin: 0 0 14px; }
+.hh-warn { color: var(--idle); }
+.hh-stepper { display: flex; align-items: center; justify-content: center; gap: 24px; font-size: 32px; margin: 12px 0 18px; }
+.hh-modal-actions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
+.hh-modal-actions-center { justify-content: center; }
+.hh-modes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.hh-mode {
+    text-align: left; background: var(--panel-alt); color: var(--text); border: 1px solid var(--hairline);
+    border-radius: 10px; padding: 12px; cursor: pointer; display: flex; flex-direction: column; gap: 4px; font-family: inherit;
+}
+.hh-mode span { color: var(--text-muted); font-size: 13px; }
+.hh-mode-on { background: #dcfce7; border-color: #16a34a; }
+.hh-mode:disabled { opacity: .4; cursor: default; }
+
+@media (max-width: 1100px) {
+    .hh-diagram { flex-direction: column; align-items: stretch; }
+    .hh-left { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 16px; }
+    .hh-boiler, .hh-gateway, .hh-heater, .hh-pump-tile, .hh-supply, .hh-return { grid-column: 1; grid-row: auto; margin: 0; }
+    .hh-water-grid { grid-template-columns: 1fr; }
+    .hh-tiles { grid-template-columns: repeat(2, 1fr); }
+    .hh-tiles-left { grid-column: 1; grid-row: auto; }
+}
+
+@media (max-width: 640px) {
+    .hh-tabs .dev-tab { font-size: 14px; padding: 8px 12px; }
+    .hh-chart-controls { margin-left: 0; width: 100%; }
+    .hh-head { flex-wrap: wrap; }
+}

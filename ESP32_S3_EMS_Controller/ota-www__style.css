@@ -1,0 +1,3539 @@
+/* ============================================================
+   TOKENS
+   ============================================================ */
+
+:root {
+    --bg: #f2f4f7;
+    --panel: #ffffff;
+    --header: #e9edf1;
+    --panel-alt: #f7f8fa;
+    --hairline: #e3e7eb;
+    --hairline-soft: #edf0f3;
+
+    --text: #1f242b;
+    --text-muted: #6b7785;
+    --text-faint: #a7afb8;
+
+    --signal: #16a34a;
+    --signal-dim: rgba(21, 128, 61, 0.09);
+    --info: #1d4ed8;
+    --idle: #b45309;
+    --idle-dim: rgba(180, 83, 9, 0.09);
+    --danger: #b91c1c;
+    --danger-dim: rgba(185, 28, 28, 0.09);
+
+    --btn-primary-bg: #5b6572;
+    --btn-primary-hover: #7fbf98;
+    /* posrednia szarosc - miedzy .maintenance-button a przyciskiem Zapisz */
+    --btn-secondary-bg: #d5dae0;
+    --btn-secondary-border: #c2c8cf;
+
+    --font-sans: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    --font-mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+
+    --radius: 6px;
+    --shadow:
+        0 1px 3px rgba(20, 25, 30, 0.06),
+        0 1px 2px rgba(20, 25, 30, 0.04);
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
+}
+
+
+/* ============================================================
+   HEADER
+   ============================================================ */
+
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+
+    padding: 16px 22px;
+
+    background: var(--header);
+    border-bottom: 1px solid var(--hairline);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-dot {
+    width: 9px;
+    height: 9px;
+
+    border-radius: 50%;
+    background: var(--text-faint);
+
+    flex-shrink: 0;
+}
+
+.brand-dot.online {
+    background: var(--signal);
+    box-shadow: 0 0 0 3px var(--signal-dim);
+}
+
+.brand-dot.warning {
+    background: var(--idle);
+    box-shadow: 0 0 0 3px var(--idle-dim);
+}
+
+.brand-dot.offline {
+    background: var(--danger);
+    box-shadow: 0 0 0 3px var(--danger-dim);
+}
+
+.brand-text h1 {
+    margin: 0;
+
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+
+    color: var(--text);
+}
+
+.subtitle {
+    margin-top: 2px;
+
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.connection-badge {
+    display: inline-block;
+
+    padding: 5px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    color: var(--text-muted);
+
+    font-family: var(--font-mono);
+    font-size: 11px;
+
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.connection-badge:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+}
+
+
+/* ============================================================
+   MAIN
+   ============================================================ */
+
+main {
+    width: 100%;
+    max-width: 900px;
+
+    margin: 0 auto;
+
+    padding: 22px 18px 40px;
+}
+
+/* raporty i symulacje (www/layout.py::page_shell) - szerokie tabele bez przewijania */
+main.main-wide {
+    max-width: 1800px;
+}
+
+
+/* ============================================================
+   NORMAL CONTENT
+   ============================================================ */
+
+#normal-content {
+    width: 100%;
+}
+
+#normal-content[hidden] {
+    display: none;
+}
+
+
+/* ============================================================
+   CONNECTION ERROR
+   ============================================================ */
+
+/*
+ * Ten blok odpowiada dokładnie HTML:
+ *
+ * <section id="connection-error" class="connection-error">
+ *     <div class="connection-error-card">
+ *         <div class="connection-error-icon">×</div>
+ *         <h2>...</h2>
+ *         <p>...</p>
+ *         <p>...</p>
+ *         <button>...</button>
+ *     </div>
+ * </section>
+ */
+
+.connection-error {
+    width: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 35px 0 10px;
+}
+
+.connection-error[hidden] {
+    display: none;
+}
+
+.connection-error-card {
+    width: 100%;
+    max-width: 420px;
+
+    padding: 30px 24px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    text-align: center;
+}
+
+.connection-error-icon {
+    width: 48px;
+    height: 48px;
+
+    margin: 0 auto 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 2px solid var(--danger);
+    border-radius: 50%;
+
+    color: var(--danger);
+
+    font-family: var(--font-mono);
+    font-size: 28px;
+    font-weight: 600;
+
+    line-height: 1;
+}
+
+.connection-error-card h2 {
+    margin: 0 0 10px;
+
+    color: var(--text);
+
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.connection-error-card p {
+    margin: 0 0 14px;
+
+    color: var(--text-muted);
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.connection-error-card p:last-of-type {
+    margin-bottom: 20px;
+}
+
+.connection-retry {
+    display: inline-block;
+
+    padding: 10px 18px;
+
+    border: 1px solid var(--danger);
+    border-radius: var(--radius);
+
+    background: var(--text);
+    color: #ffffff;
+
+    font-family: var(--font-sans);
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        opacity 0.15s ease;
+}
+
+.connection-retry:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #ffffff;
+}
+
+.connection-retry:disabled {
+    opacity: 0.55;
+    cursor: wait;
+}
+
+
+/* ============================================================
+   HERO
+   ============================================================ */
+
+/* szkielety kafli Pulpitu do czasu dociagniecia tresci (www/dashboard.js) */
+.ghost-tile {
+    min-height: 120px;
+}
+
+.ghost-tile .ghost-block {
+    display: block;
+    border-radius: 8px;
+    background: var(--hairline);
+    animation: ghost-pulse 1.4s ease-in-out infinite;
+}
+
+.ghost-icon { width: 44px; height: 44px; border-radius: 50% !important; flex: none; }
+.ghost-title { width: 180px; max-width: 60vw; height: 22px; margin-bottom: 10px; }
+.ghost-sub { width: 260px; max-width: 70vw; height: 14px; }
+.ghost-value { width: 90px; height: 28px; }
+.ghost-line { width: 100%; height: 16px; margin-top: 12px; }
+
+@keyframes ghost-pulse {
+    0%, 100% { opacity: .45; }
+    50% { opacity: 1; }
+}
+
+/* podglad pomieszczen w kaflu Ogrzewanie (www/dashboard.py::_rooms_html()) */
+.hero-rooms-summary {
+    flex: 0 1 auto;
+    min-width: 0;
+    margin-left: 4px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: .75;
+}
+
+/* zwijane sekcje Pulpitu (details > summary.log-header) */
+/* Zwijana sekcja: ikona odswiezania zostaje TAM, GDZIE NA KAZDYM KAFLU - prawy gorny rog
+   (.tile-refresh: top 8 px, right 8 px, 30 x 30 px). Naglowek to JEDEN wiersz o wysokosci ikony
+   (30 px), zaczynajacy sie 8 px od gory, wiec jego srodek (23 px) lezy na srodku ikony; tytul,
+   podsumowanie i strzalka sa wyrownane do niego w pionie, a strzalka stoi tuz przed ikona. */
+.heating-collapsible {
+    padding-top: 8px;
+}
+
+.heating-collapsible > summary {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    gap: 8px;
+    min-height: 30px;
+    cursor: pointer;
+    list-style: none;
+}
+
+.heating-collapsible:not([open]) > summary {
+    margin-bottom: 0;
+}
+
+.heating-collapsible > summary h2 {
+    flex: 0 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+.heating-collapsible > summary::-webkit-details-marker {
+    display: none;
+}
+
+.heating-collapsible > summary::after {
+    content: "expand_more";
+    font-family: "Material Symbols Outlined";
+    font-size: 22px;
+    flex: none;
+    margin-left: auto;
+    margin-right: 24px;      /* ikona odswiezania (30 px + 8 px od krawedzi) lezy 18 px za prawym brzegiem tresci */
+    line-height: 1;
+    opacity: .6;
+    transition: transform .15s;
+}
+
+.heating-collapsible[open] > summary::after {
+    transform: rotate(180deg);
+}
+
+.hero-chart-note {
+    font-size: 12px;
+    opacity: .65;
+}
+
+.hero-rooms-table {
+    white-space: nowrap;
+}
+
+.hero-rooms-source {
+    opacity: .6;
+}
+
+/* pomieszczenia zakwalifikowane do grzania: caly wiersz pogrubiony */
+.hero-rooms-row-on td {
+    font-weight: 700;
+}
+
+.hero-rooms-on {
+    color: #ea580c;
+}
+
+.hero-chart-body {
+    margin-top: 4px;
+}
+
+.hero-chart-body svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-bottom: 6px;
+}
+
+.hero-chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px 14px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.hero-chart-legend i {
+    display: inline-block;
+    width: 14px;
+    height: 3px;
+    margin-right: 4px;
+    vertical-align: middle;
+}
+
+/* seria przerywana (zasilanie zadane) - znacznik legendy tez przerywany */
+.hero-chart-legend i.dashed {
+    height: 0;
+    background: transparent;
+    border-top: 3px dashed;
+}
+
+.hero-chart-title {
+    margin: 6px 0 2px;
+    font-size: 13px;
+    font-weight: 600;
+    opacity: .8;
+}
+
+/* ikona odswiezenia pojedynczego kafla Pulpitu (www/dashboard.js) */
+.hero, .log-section-tile {
+    position: relative;
+}
+
+.tile-refresh {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 30px;
+    height: 30px;
+    padding: 0;
+
+    background: transparent;
+    border: 0;
+    border-radius: 50%;
+    color: inherit;
+    opacity: .35;
+    cursor: pointer;
+}
+
+.tile-refresh:hover {
+    opacity: .9;
+}
+
+.tile-refresh .material-symbols-outlined {
+    font-size: 20px;
+}
+
+.tile-refresh.is-spinning .material-symbols-outlined {
+    animation: tile-spin 0.8s linear infinite;
+}
+
+@keyframes tile-spin {
+    to { transform: rotate(360deg); }
+}
+
+.hero {
+    position: relative;
+    overflow: hidden;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+    flex-wrap: wrap;
+
+    padding: 34px 28px;
+    margin-bottom: 16px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    /*
+     * Domyslny (BRAK OBECNOSCI) kolor akcentu - nadpisywany inline
+     * przez script.js tym samym schematem, co lewa krawedz wpisow
+     * na liscie "Poprzednie stany" (patrz durationColor()/borderColor
+     * w updateHistory() oraz updateStatus()).
+     */
+    border-left: 4px solid var(--hairline);
+}
+
+.hero-sweep {
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+
+    background: linear-gradient(
+        100deg,
+        transparent 0%,
+        transparent 40%,
+        rgba(21, 128, 61, 0.05) 50%,
+        transparent 60%,
+        transparent 100%
+    );
+
+    background-size: 220% 100%;
+
+    animation: sweep 7s linear infinite;
+}
+
+.hero[hidden] {
+    display: none;
+}
+
+/*
+ * Pasek nad kaflami Pulpitu - czas ostatniej aktualizacji + "Odswiez"
+ * (www/dashboard.py::_refresh_bar_html(), www/dashboard.js). Celowo
+ * niski i spokojny - informacja pomocnicza, nie kafel.
+ */
+.dashboard-refresh {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 16px;
+
+    /* poziomo jak .hero (28px) - "Odswiez" w tej samej odleglosci od
+       prawej krawedzi co przyciski w kaflach */
+    padding: 10px 28px;
+    margin-bottom: 16px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+.dashboard-refresh-text {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 2px 8px;
+
+    font-size: 13px;
+}
+
+.dashboard-refresh-label {
+    color: var(--text-muted);
+}
+
+.dashboard-refresh-value {
+    font-family: var(--font-mono);
+    color: var(--text);
+}
+
+.dashboard-refresh .maintenance-button:disabled {
+    opacity: 0.55;
+    cursor: default;
+
+    background: var(--panel-alt);
+    border-color: var(--hairline);
+    color: var(--text-muted);
+}
+
+
+/* ============================================================
+   QUICK STATUS / SENSOR OFFLINE
+   ============================================================ */
+
+.quick-status {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin-bottom: 12px;
+    overflow: hidden;
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.quick-status-item {
+    min-width: 0;
+    padding: 10px 14px;
+    border-left: 1px solid var(--hairline-soft);
+}
+
+.quick-status-item:first-child {
+    border-left: 0;
+}
+
+.quick-status-item span {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--text-muted);
+    font-size: 10px;
+    text-transform: uppercase;
+}
+
+.quick-status-item strong {
+    display: block;
+    overflow: hidden;
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.quick-status-item strong.ok {
+    color: var(--signal);
+}
+
+.quick-status-item strong.down {
+    color: var(--danger);
+}
+
+.sensor-offline {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: var(--danger-dim);
+    border: 1px solid rgba(185, 28, 28, 0.24);
+    border-radius: var(--radius);
+}
+
+.sensor-offline[hidden] {
+    display: none;
+}
+
+.sensor-offline-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--danger);
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.sensor-offline strong {
+    color: var(--danger);
+    font-size: 14px;
+}
+
+.sensor-offline p {
+    margin: 3px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.config-alert-action {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 6px 12px;
+    border: 1px solid rgba(185, 28, 28, 0.35);
+    border-radius: var(--radius);
+    background: #ffffff;
+    color: var(--danger);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.config-alert-action:hover {
+    background: var(--danger);
+    color: #ffffff;
+}
+
+/* przyciski na gorze ekranow pomieszczenia (www/room_form.py): Konfiguracja / Harmonogram */
+.room-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.room-nav a.maintenance-button {
+    text-decoration: none;
+}
+
+.room-nav-disabled {
+    opacity: 0.45;
+    pointer-events: none;
+}
+
+/* notyfikacje Pulpitu (www/dashboard.js) - .sensor-offline z czasem i "×" */
+.notification-body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.notification-time {
+    margin-left: 8px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.notification-close {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    margin: -6px -6px 0 0;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--danger);
+    font-size: 20px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.notification-close:hover {
+    background: rgba(185, 28, 28, 0.12);
+}
+
+.notification-close:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.notification-more {
+    margin: -8px 0 16px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+/* Jak .sensor-offline (kafel-alert na gorze strony), ale ogolny -
+ * kolor NIE zawsze musi oznaczac blad (np. informacja o otwartej
+ * sieci Zigbee do parowania, patrz www/zigbee_config.py/.js) -
+ * .info-banner-success uzywa zielonego akcentu zamiast czerwonego. */
+.info-banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    border-radius: var(--radius);
+}
+
+.info-banner[hidden] {
+    display: none;
+}
+
+.info-banner-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    color: #ffffff;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.info-banner p {
+    margin: 3px 0 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.info-banner-success {
+    background: var(--signal-dim);
+    border: 1px solid rgba(21, 128, 61, 0.24);
+}
+
+.info-banner-success .info-banner-icon {
+    background: var(--signal);
+}
+
+.info-banner-success strong {
+    color: var(--signal);
+    font-size: 14px;
+}
+
+@keyframes sweep {
+    0% {
+        background-position: 120% 0;
+    }
+
+    100% {
+        background-position: -20% 0;
+    }
+}
+
+.hero-main {
+    position: relative;
+    z-index: 1;
+
+    /* rosnie, ale zostawia miejsce na .hero-duration w tym samym
+       wierszu (dlugi opis nie spycha wartosci z prawej pod spod) */
+    flex: 1 1 320px;
+
+    display: flex;
+    align-items: center;
+    gap: 14px;
+
+    min-width: 0;
+}
+
+/*
+ * Ikona jako WLASNY element flex (nie tekst wklejony przed tytulem) -
+ * jedyny sposob, zeby faktycznie wycentrowac ja w pionie wzgledem
+ * CALEJ wysokosci tytulu+opisu (align-items:center na .hero-main
+ * wyzej), a nie tylko wzgledem pierwszej linii tekstu. Kolor
+ * domyslnie neutralny - kafle ze statusem (tryb/strefa/RCE) nadpisuja
+ * go inline tym samym kolorem co .hero-status.
+ */
+.hero-icon {
+    flex-shrink: 0;
+
+    font-size: 60px;
+    line-height: 1;
+
+    color: var(--text-faint);
+}
+
+/*
+ * Faktyczny rozmiar ikon kafli - arkusz Google Material Symbols
+ * (ladowany PO style.css, patrz www/dashboard.py) ustawia
+ * .material-symbols-outlined { font-size: 24px } i przy tej samej
+ * specyficznosci nadpisywal font-size z .hero-icon wyzej - stad
+ * mocniejszy selektor. 48px = gorna granica osi "opsz" fontu.
+ */
+.hero .hero-icon {
+    font-size: 48px;
+}
+
+/* Ligatury Material Symbols (https://fonts.google.com/icons) - nazwa
+   ikony jako tresc <span>, font podmienia ja na glif. Font ladowany
+   TYLKO na Pulpicie (patrz www/dashboard.py, extra_head) - bez niego
+   po prostu widac nazwe ikony jako zwykly tekst (degradacja, nie
+   blad). */
+.material-symbols-outlined {
+    font-family: 'Material Symbols Outlined';
+    font-weight: normal;
+    font-style: normal;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-smoothing: antialiased;
+}
+
+.hero-text {
+    min-width: 0;
+}
+
+.hero-status {
+    font-family: var(--font-mono);
+
+    font-size: clamp(19px, 3.2vw, 25px);
+    font-weight: 600;
+
+    letter-spacing: 0.5px;
+    line-height: 1.15;
+
+    color: var(--text-faint);
+}
+
+.hero-status.detected {
+    color: var(--signal);
+}
+
+.hero-status.not-detected {
+    color: var(--text-muted);
+}
+
+.hero-status.comm-lost {
+    color: var(--danger);
+}
+
+.hero-status.powered-off {
+    color: var(--text-faint);
+}
+
+.hero-sub {
+    margin-top: 6px;
+
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+/* Druga, mniej wyrozniona wartosc w tytule kafla (np. cena obok
+   nazwy strefy taryfowej) - dziedziczy kolor akcentu tytulu. */
+.hero-status-aside {
+    margin-left: 6px;
+
+    font-size: 0.68em;
+    font-weight: 500;
+
+    opacity: 0.85;
+    white-space: nowrap;
+}
+
+/*
+ * Dodatkowe wiersze kafla (www/dashboard.py::_hero_html(), extra_rows) -
+ * mniejsza czcionka, BEZ kolorowania akcentem kafla, oddzielone od
+ * opisu cienka linia. Etykieta i wartosc w jednej linii, wartosc
+ * mono (jak .hero-duration-value), zeby liczby ukladaly sie rowno.
+ */
+.hero-extra {
+    display: grid;
+    gap: 3px;
+
+    margin: 10px 0 0;
+    padding-top: 8px;
+
+    border-top: 1px solid var(--hairline-soft);
+
+    font-size: 12px;
+}
+
+.hero-extra-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 2px 8px;
+}
+
+.hero-extra-row dt {
+    color: var(--text-muted);
+}
+
+.hero-extra-row dt::after {
+    content: ":";
+}
+
+.hero-extra-row dd {
+    margin: 0;
+
+    font-family: var(--font-mono);
+    color: var(--text);
+}
+
+.hero-duration {
+    position: relative;
+    z-index: 1;
+
+    flex-shrink: 0;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+
+    gap: 4px;
+}
+
+.hero-duration-label {
+    color: var(--text-muted);
+    font-size: 11px;
+    text-transform: lowercase;
+}
+
+.hero-duration-value {
+    font-family: var(--font-mono);
+
+    font-size: 22px;
+    font-weight: 500;
+
+    color: var(--text);
+
+    white-space: nowrap;
+}
+
+/*
+ * Przyciski akcji pod wartoscia po prawej (www/dashboard.py::
+ * _mode_switch_html()/_device_toggle_html(), www/dashboard.js). Menu
+ * trybow rozwija sie W PRZEPLYWIE (nie absolutnie) - .hero ma
+ * overflow:hidden, ktore przycieloby wyskakujace menu.
+ */
+.hero-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+
+    margin-top: 8px;
+}
+
+/*
+ * Kafel z przyciskami: kolumna po prawej rozciagnieta na cala wysokosc
+ * kafla, przyciski dosuniete do DOLNEJ krawedzi, a etykieta/wartosc
+ * zostaja wysrodkowane w pionie (dwa rowne "rozpychacze": ::before nad
+ * wartoscia i .hero-actions pod nia).
+ */
+.hero-duration.has-actions {
+    align-self: stretch;
+}
+
+.hero-duration.has-actions::before {
+    content: "";
+    flex: 1 1 0;
+}
+
+.hero-duration.has-actions .hero-actions {
+    flex: 1 1 0;
+    justify-content: flex-end;
+}
+
+.hero-actions .maintenance-button:disabled {
+    opacity: 0.55;
+    cursor: default;
+}
+
+.hero-menu {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 220px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    overflow: hidden;
+}
+
+.hero-menu[hidden] {
+    display: none;
+}
+
+.hero-menu-item {
+    padding: 9px 14px;
+
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--hairline-soft);
+
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+
+    cursor: pointer;
+}
+
+.hero-menu-item:last-child {
+    border-bottom: 0;
+}
+
+.hero-menu-item:hover:not(:disabled) {
+    background: var(--panel-alt);
+}
+
+.hero-menu-item:disabled {
+    color: var(--text-faint);
+    cursor: default;
+}
+
+
+/* ============================================================
+   HERO MEASUREMENTS (typ obecności + ruch/obecność stacjonarna)
+   ============================================================ */
+
+.hero-measurements {
+    position: relative;
+    z-index: 1;
+
+    flex-basis: 100%;
+
+    margin-top: 22px;
+    padding-top: 18px;
+
+    border-top: 1px solid var(--hairline-soft);
+}
+
+.hero-measurements[hidden] {
+    display: none;
+}
+
+.hero-type {
+    margin-bottom: 12px;
+
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.hero-measurement-grid {
+    display: grid;
+
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    gap: 16px;
+}
+
+.hero-measurement-item {
+    min-width: 0;
+}
+
+.hero-measurement-label {
+    margin-bottom: 6px;
+
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.hero-measurement-value {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+
+    margin-top: 2px;
+}
+
+.hero-measurement-value strong {
+    color: var(--text-faint);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.hero-measurement-value span {
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.hero-details {
+    position: relative;
+    z-index: 1;
+
+    flex-basis: 100%;
+
+    margin-top: 14px;
+    padding-top: 14px;
+
+    border-top: 1px solid var(--hairline-soft);
+}
+
+.hero-details summary {
+    cursor: pointer;
+
+    list-style: none;
+
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.hero-details summary::-webkit-details-marker {
+    display: none;
+}
+
+.hero-details summary::before {
+    content: "›";
+
+    display: inline-block;
+
+    margin-right: 4px;
+
+    transition: transform 0.15s ease;
+}
+
+.hero-details[open] summary::before {
+    transform: rotate(90deg);
+}
+
+
+
+/* ============================================================
+   LOG SECTION
+   ============================================================ */
+
+.log-section {
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+
+    padding: 18px 20px 6px;
+}
+
+/* sekcja jako kafel na Pulpicie (np. Harmonogram pracy) - odstep od nastepnego
+   kafla jak .hero */
+.log-section.log-section-tile {
+    margin-bottom: 16px;
+}
+
+.log-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 15px;
+
+    margin-bottom: 14px;
+}
+
+.log-header h2 {
+    margin: 0;
+
+    color: var(--text-muted);
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+button {
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel);
+    color: var(--text);
+
+    font-family: var(--font-sans);
+    font-size: 12px;
+
+    padding: 7px 13px;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.15s ease,
+        color 0.15s ease;
+}
+
+button:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:disabled:hover {
+    border-color: var(--hairline);
+    color: var(--text);
+}
+
+
+/* ============================================================
+   HISTORY ITEMS
+   ============================================================ */
+
+.history-item {
+    padding: 12px 4px 12px 14px;
+
+    border-left: 2px solid transparent;
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.history-item:last-child {
+    border-bottom: 0;
+}
+
+.history-item-summary {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    cursor: pointer;
+
+    list-style: none;
+}
+
+.history-item-summary::-webkit-details-marker {
+    display: none;
+}
+
+/*
+ * Szewron PO PRAWEJ (::after, nie ::before) - i TYLKO dla wpisow
+ * WYKRYTA OBECNOSC/BRAK OBECNOSCI (patrz .no-chevron ponizej,
+ * uzywane dla BRAK KOMUNIKACJI/WYLACZONY - te wpisy nie maja zadnych
+ * rozwijalnych szczegolow, wiec nie sugerujemy, ze da sie je
+ * rozwinac).
+ */
+.history-item-summary::after {
+    content: "›";
+
+    flex: none;
+
+    color: var(--text-muted);
+
+    transition: transform 0.15s ease;
+}
+
+.history-item[open] .history-item-summary::after {
+    transform: rotate(90deg);
+}
+
+.history-item-summary.no-chevron {
+    cursor: default;
+}
+
+.history-item-summary.no-chevron::after {
+    content: none;
+}
+
+.history-item-summary .history-summary {
+    flex: 1;
+
+    min-width: 0;
+}
+
+.history-item-detail {
+    padding: 12px 4px 0 22px;
+}
+
+.history-summary {
+    display: grid;
+
+    grid-template-columns:
+        minmax(120px, 1.1fr)
+        minmax(130px, 1fr)
+        minmax(90px, 0.7fr);
+
+    align-items: center;
+
+    gap: 14px;
+
+    min-width: 0;
+}
+
+.history-summary-status {
+    min-width: 0;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.history-summary-status.detected {
+    color: var(--signal);
+}
+
+.history-summary-status.not-detected {
+    color: var(--text-muted);
+}
+
+.history-summary-status.comm-lost {
+    color: var(--danger);
+}
+
+.history-summary-status.powered-off {
+    color: var(--text-faint);
+}
+
+.history-summary-start {
+    min-width: 0;
+
+    color: var(--text-muted);
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+
+    white-space: nowrap;
+}
+
+.history-summary-duration {
+    min-width: 0;
+
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+
+    text-align: right;
+
+    white-space: nowrap;
+}
+
+/* ============================================================
+   HISTORY BODY / DETAILS
+   ============================================================ */
+
+.hero-details-body {
+    padding: 4px 14px 16px;
+}
+
+.history-detail-section {
+    margin-bottom: 14px;
+}
+
+.history-detail-section:last-child {
+    margin-bottom: 0;
+}
+
+.history-detail-section-title {
+    margin-bottom: 8px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    letter-spacing: 0.3px;
+}
+
+.history-detail-section-content {
+    border: 1px solid var(--hairline-soft);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+
+    overflow: hidden;
+}
+
+.history-detail-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1fr)
+        minmax(0, 1fr);
+
+    gap: 14px;
+
+    padding: 8px 11px;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.history-detail-row:last-child {
+    border-bottom: 0;
+}
+
+.history-detail-label {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.history-detail-value {
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+
+    text-align: right;
+
+    overflow-wrap: anywhere;
+}
+
+
+/* ============================================================
+   MEASUREMENTS TABLE
+   ============================================================ */
+
+.history-measurements-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+.history-measurements {
+    width: 100%;
+    min-width: 520px;
+
+    border-collapse: collapse;
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+}
+
+.history-measurements th {
+    padding: 8px;
+
+    background: var(--panel-alt);
+
+    color: var(--text-muted);
+
+    font-family: var(--font-sans);
+    font-size: 11px;
+    font-weight: 500;
+
+    text-align: left;
+
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.history-measurements td {
+    padding: 8px;
+
+    color: var(--text);
+
+    white-space: nowrap;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.history-measurements tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+/* naglowek (th) domyslnie text-align:left (patrz wyzej), ale komorki
+ * z wartosciami liczbowymi (np. .measurement-energy) czesto sa
+ * wyrownane do prawej/srodka - te klasy pozwalaja dopasowac naglowek
+ * do FAKTYCZNEGO wyrownania wartosci w kolumnie, zeby bylo od razu
+ * widac, ktora kolumna jest ktora (patrz www/consumption_report.js) */
+.history-measurements th.align-right,
+.history-measurements td.align-right {
+    text-align: right;
+}
+
+.history-measurements th.align-center,
+.history-measurements td.align-center {
+    text-align: center;
+}
+
+.history-measurements tbody tr:hover {
+    background: var(--panel-alt);
+}
+
+/*
+ * Harmonogram na Pulpicie (www/dashboard.py) - na desktopie zwykla
+ * tabela; na telefonie kazdy wiersz jako "karta" w dwoch liniach, bez
+ * przewijania w bok, z naglowkiem RAZ nad kartami, w tym samym ukladzie:
+ *     Start – Koniec                Tryb pracy
+ *     RCE (PLN)    PV (kWh)    Zuzycie (kWh)  SOC (%)
+ *     ------------------------------------------------
+ *     10:00 – 14:00                        [IDLE]
+ *     0,70 - 0,78  6,20        2,00          85
+ * "Start - Koniec" w jednej komorce (.sch-range) - widocznej TYLKO na
+ * telefonie.
+ */
+.schedule-table .sch-range {
+    display: none;
+}
+
+@media (max-width: 640px) {
+
+    .schedule-table {
+        min-width: 0;
+    }
+
+    .schedule-table,
+    .schedule-table thead,
+    .schedule-table tbody {
+        display: block;
+    }
+
+    .schedule-table tr {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-areas:
+            "range range range mode"
+            "rce   pv    load  soc";
+        gap: 6px 10px;
+
+        padding: 10px 4px;
+
+        border-bottom: 1px solid var(--hairline-soft);
+    }
+
+    .schedule-table thead tr {
+        gap: 2px 10px;
+
+        background: var(--panel-alt);
+    }
+
+    .schedule-table tbody tr:last-child {
+        border-bottom: 0;
+    }
+
+    .schedule-table td,
+    .schedule-table th {
+        display: block;
+
+        padding: 0;
+        border: 0;
+
+        background: none;
+
+        white-space: normal;
+    }
+
+    .schedule-table .sch-start,
+    .schedule-table .sch-end {
+        display: none;
+    }
+
+    .schedule-table .sch-range {
+        display: block;
+        grid-area: range;
+
+        align-self: center;
+    }
+
+    .schedule-table td.sch-range {
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .schedule-table .sch-mode {
+        grid-area: mode;
+        justify-self: end;
+        align-self: center;
+    }
+
+    .schedule-table .sch-rce { grid-area: rce; }
+    .schedule-table .sch-pv { grid-area: pv; }
+    .schedule-table .sch-load { grid-area: load; }
+    .schedule-table .sch-soc { grid-area: soc; }
+}
+
+.event-details {
+    margin: 0;
+    padding: 8px;
+
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    background: var(--panel-alt);
+    color: var(--text-muted);
+
+    font-family: var(--font-mono);
+    font-size: 11px;
+}
+
+.settlement-sum-row td {
+    background: var(--panel-alt);
+    border-top: 1px solid var(--hairline-soft);
+}
+
+.measurement-number {
+    width: 32px;
+
+    color: var(--text-faint);
+
+    text-align: center;
+}
+
+.measurement-time {
+    color: var(--text-muted);
+}
+
+.measurement-distance,
+.measurement-energy {
+    text-align: right;
+}
+
+/* wartosc (+ jednostka) zaokraglona do zera - patrz
+ * www/consumption_report.js::wrapZero() - wyszarzona, zeby latwiej
+ * bylo okiem znalezc sloty/urzadzenia z faktycznym zuzyciem */
+.measurement-zero {
+    color: var(--text-faint);
+}
+
+.state-badge {
+    display: inline-block;
+
+    min-width: 30px;
+
+    padding: 3px 6px;
+
+    border-radius: var(--radius);
+
+    text-align: center;
+
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.state-badge.state-1 {
+    background: rgba(23, 105, 170, 0.09);
+    color: #1769aa;
+}
+
+.state-badge.state-2 {
+    background: var(--idle-dim);
+    color: var(--idle);
+}
+
+.state-badge.state-3 {
+    background: rgba(123, 63, 161, 0.09);
+    color: #7b3fa1;
+}
+
+
+/* ============================================================
+   EMPTY STATES
+   ============================================================ */
+
+.history-empty {
+    padding: 16px 4px;
+
+    color: var(--text-faint);
+
+    font-size: 12px;
+
+    text-align: center;
+}
+
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+    padding: 20px;
+
+    color: var(--text-faint);
+
+    font-size: 11px;
+
+    text-align: center;
+}
+
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+    header {
+        padding: 14px 16px;
+    }
+
+    main {
+        padding: 16px 12px 32px;
+    }
+
+    .hero {
+        padding: 24px 20px;
+
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    /* wartosc i przyciski po prawej, jak "Odswiez" w pasku nad kaflami
+       (kafel jest tu kolumna, wiec blok rozciagamy na cala szerokosc) */
+    .hero-duration {
+        align-self: stretch;
+        align-items: flex-end;
+    }
+
+    /* jak .hero wyzej - "Odswiez" w tej samej odleglosci od krawedzi */
+    .dashboard-refresh {
+        padding: 10px 20px;
+    }
+
+    /* w kolumnie flex-basis dotyczylby WYSOKOSCI - patrz .hero-main */
+    .hero-main {
+        flex: 0 1 auto;
+    }
+
+    .hero-measurement-grid {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .history-summary {
+        grid-template-columns: minmax(0, 1fr);
+
+        gap: 4px;
+    }
+
+    .history-summary-duration {
+        text-align: left;
+    }
+
+    .history-detail-row {
+        grid-template-columns: 1fr;
+
+        gap: 3px;
+    }
+
+    .history-detail-value {
+        text-align: left;
+    }
+}
+
+
+/* ============================================================
+   DEVICE INFORMATION
+   ============================================================ */
+
+.info-intro {
+    margin: 0 0 18px;
+}
+
+.info-intro h2 {
+    margin: 0 0 5px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.info-intro p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.info-panel {
+    padding-bottom: 0;
+}
+
+.info-list {
+    margin: 0;
+}
+
+.info-row {
+    display: grid;
+    grid-template-columns: minmax(125px, 35%) 1fr;
+    gap: 16px;
+    padding: 11px 0;
+    border-top: 1px solid var(--hairline-soft);
+}
+
+.info-row dt {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.info-row dd {
+    margin: 0;
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+}
+
+.info-actions {
+    margin-top: 18px;
+}
+
+.info-group {
+    padding-bottom: 0;
+}
+
+.info-group-title {
+    position: relative;
+    display: block;
+    cursor: pointer;
+    list-style: none;
+}
+
+/*
+ * Domyslnie BEZ separatora - w przeciwnym razie belka (zawsze
+ * widoczna, takze zwinieta) sugerowalaby tresc ponizej, ktorej
+ * jeszcze nie widac. Separator pojawia sie dopiero po rozwinieciu
+ * ponizej.
+ *
+ * UWAGA: selektor musi laczyc element ("summary") Z klasa, zeby
+ * miec WYZSZA specyficznosc niz .settings-panel-title (sama klasa,
+ * ta sama specyficznosc co .info-group-title) - w przeciwnym razie
+ * o wyniku decydowalaby WYLACZNIE kolejnosc regul w pliku (a
+ * .settings-panel-title jest zdefiniowana PONIZEJ, wiec wygrywala
+ * i separator byl widoczny takze na zwinietej belce).
+ */
+summary.info-group-title {
+    border-bottom: none;
+}
+
+.info-group[open] summary.info-group-title {
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.info-group-title::-webkit-details-marker {
+    display: none;
+}
+
+.info-group-title::after {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    right: 2px;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1;
+}
+
+.info-group[open] .info-group-title::after {
+    content: "−";
+}
+
+
+/* ============================================================
+   SENSITIVITY PRESETS
+   ============================================================ */
+
+.sensitivity-presets {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.sensitivity-presets > span {
+    margin-right: 2px;
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.sensitivity-presets button {
+    padding: 5px 9px;
+    color: var(--text-muted);
+    font-size: 11px;
+}
+
+.sensitivity-presets button:hover,
+.sensitivity-presets button.active {
+    border-color: var(--signal);
+    color: var(--signal);
+}
+
+@media (max-width: 480px) {
+    .info-row {
+        grid-template-columns: 1fr;
+        gap: 3px;
+    }
+}
+
+
+/* ============================================================
+   SETTINGS FORM (/edit)
+   ============================================================ */
+
+.settings-back-link {
+    text-decoration: none;
+}
+
+.settings-panel {
+    margin-bottom: 16px;
+
+    padding: 4px 20px 6px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+.settings-panel-title {
+    padding: 14px 0 10px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.settings-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding: 14px 0;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.settings-row:last-child {
+    border-bottom: 0;
+}
+
+/*
+ * Wiersz-naglowek rozwijanej sekcji (patrz www/meteo_calibration.js,
+ * www/meteo_forecast_revisions.js - "data-day-toggle" + osobny <div
+ * hidden> z detalami PO NIM w DOM-ie). Taki wiersz NIGDY nie jest
+ * ":last-child" (ten ukryty <div> zawsze jest po nim), wiec zwykla
+ * regula ":last-child" wyzej nigdy by go nie zlapala - stad wlasna
+ * krawedz PRZYNIEZALEZNIENIU od stanu (widoczna dopiero po dodaniu
+ * klasy "expanded" w JS przy rozwinieciu, znika przy zwinieciu).
+ */
+.settings-row-collapsible {
+    border-bottom: 0;
+}
+
+.settings-row-collapsible.expanded {
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+/* opis zajmuje cala wolna szerokosc - przyciski i strzalka przy prawej
+ * krawedzi (przy 3 elementach "space-between" stawial przyciski na
+ * srodku, np. www/rooms_list.js, www/tariffs_list.js) */
+.settings-row-collapsible > .settings-row-text {
+    flex: 1 1 auto;
+}
+
+.settings-row-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    line-height: 1;
+    font-size: 1.1em;
+
+    color: var(--text-muted);
+}
+
+.array-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+.array-table {
+    min-width: 700px;
+}
+
+.array-table-head {
+    display: grid;
+
+    grid-template-columns:
+        minmax(90px, 1fr)
+        minmax(120px, 1.4fr)
+        minmax(80px, 1fr)
+        minmax(80px, 1fr)
+        minmax(80px, 1fr)
+        76px;
+
+    gap: 10px;
+
+    padding-top: 14px;
+    padding-bottom: 10px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.array-table-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(90px, 1fr)
+        minmax(120px, 1.4fr)
+        minmax(80px, 1fr)
+        minmax(80px, 1fr)
+        minmax(80px, 1fr)
+        76px;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 0;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.array-table-row:last-child {
+    border-bottom: 0;
+}
+
+.array-table-row input[type="number"] {
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 14px;
+
+    text-align: center;
+}
+
+.array-table-row input[type="number"]:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+.array-table-row .maintenance-button {
+    width: 100%;
+}
+
+
+/* ============================================================
+   EDIT TABLE (generyczna tabela edytowalnych wierszy - taryfy:
+   pasma godzinowe / pozostale koszty. Liczba i szerokosc kolumn
+   ustawiana inline przez "grid-template-columns" przy kazdym
+   uzyciu - .edit-table-head i .edit-table-row w danej tabeli MUSZA
+   miec identyczny grid-template-columns, zeby kolumny sie zgadzaly)
+   ============================================================ */
+
+.edit-table-wrapper {
+    width: 100%;
+
+    overflow-x: auto;
+
+    -webkit-overflow-scrolling: touch;
+}
+
+.edit-table {
+    min-width: 480px;
+}
+
+.edit-table-head {
+    display: grid;
+
+    gap: 10px;
+
+    padding-top: 14px;
+    padding-bottom: 10px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.edit-table-row {
+    display: grid;
+
+    align-items: center;
+
+    gap: 10px;
+
+    padding: 10px 0;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.edit-table-row:last-child {
+    border-bottom: 0;
+}
+
+.edit-table-row input[type="number"],
+.edit-table-row input[type="text"],
+.edit-table-row input[type="time"] {
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.edit-table-row select {
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.edit-table-row .maintenance-button {
+    width: 100%;
+}
+
+
+.settings-row-text {
+    flex: 0 0 40%;
+    min-width: 0;
+}
+
+/* wiersz urzadzenia (ekran Urzadzenia i integracje): producent | nazwa | protokol | przyciski */
+/* siatka o STALYCH kolumnach: ikona protokolu stoi zawsze w tym samym miejscu,
+   niezaleznie od liczby i szerokosci przyciskow (ostatnia kolumna, wyrownana do prawej) */
+.settings-row.device-row {
+    display: grid;
+    grid-template-columns: 14px 66px minmax(0, 1fr) 84px 340px;
+    align-items: center;
+    column-gap: 10px;
+}
+
+.device-row .settings-row-buttons {
+    justify-content: flex-end;
+}
+
+/* 1. kolumna: kolorowe kolko stanu (osobna, waska kolumna przed logo producenta) */
+.device-row .dev-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.device-row .dev-proto {
+    display: flex;
+    align-items: center;       /* ikona protokolu wysrodkowana w pionie */
+    justify-content: center;   /* i w poziomie - centralnie w kolumnie */
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.device-row .dev-proto img {
+    display: block;        /* bez szczeliny linii bazowej pod obrazkiem */
+    max-width: 80px;
+    vertical-align: initial;
+}
+
+/* menu kontekstowe "..." - akcje, ktore sie nie mieszcza (max 4 przyciski w wierszu) */
+.dev-more {
+    position: relative;
+}
+
+.dev-more-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    z-index: 30;
+
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    min-width: 150px;
+    padding: 8px;
+
+    background: var(--panel);
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+}
+
+.dev-more-menu[hidden] {
+    display: none;
+}
+
+.dev-more-menu > button,
+.dev-more-menu > a {
+    width: 100%;
+    text-align: left;
+}
+
+@media (max-width: 640px) {
+    .settings-row.device-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .device-row .dev-state {
+        flex: 0 0 14px;
+    }
+
+    .device-row .dev-brand {
+        flex: 0 0 66px;
+    }
+
+    .device-row .dev-proto {
+        flex: 0 0 84px;
+    }
+
+    .device-row .settings-row-text {
+        flex: 1 1 100%;
+        order: 3;
+    }
+
+    .device-row .settings-row-buttons {
+        order: 4;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+}
+
+.settings-row-buttons {
+    display: flex;
+    flex-shrink: 0;
+
+    gap: 10px;
+}
+
+.settings-row-text label {
+    display: block;
+
+    color: var(--text);
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.settings-hint {
+    margin-top: 3px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.settings-hint strong {
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-weight: 500;
+}
+
+.settings-row > input[type="number"] {
+    flex: 1;
+
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 14px;
+
+    text-align: right;
+}
+
+.settings-row input[type="number"]:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+/* pola tekstowe/haslowe formularza konfiguracji (nie tylko liczby) */
+.settings-row > input:not([type="number"]) {
+    flex: 1;
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+.settings-row input:not([type="number"]):focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+/* pola wypelniane automatycznie (np. Device ID/Key Sonoff z listy
+ * eWeLink - patrz www/device_form.js) - wyszarzone, bez edycji */
+.settings-row input[readonly] {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.settings-row input[readonly]:focus {
+    outline: none;
+}
+
+/* Jak ".settings-row input:not([type=number])" wyzej, ale BEZ
+ * wymogu, zeby rodzicem byl .settings-row (np. data w naglowku kafla
+ * obok tytulu - patrz www/consumption_report.py) - specyficznosc
+ * niższa niz powyzsza regula, wiec tam gdzie .settings-row juz
+ * stosuje swoj styl, nic sie nie zmienia. */
+input[type="date"] {
+    padding: 6px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+input[type="date"]:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+/* Jak "input[type=date]" wyzej - te same style, ale BEZ wymogu, zeby
+ * rodzicem byl .settings-row (np. filtr kategorii w naglowku kafla,
+ * patrz www/events_log.py) - specyficznosc nizsza niz ".settings-row >
+ * select" ponizej, wiec tam gdzie ta regula juz obowiazuje, nic sie
+ * nie zmienia. */
+select {
+    padding: 6px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+select:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+.settings-row > select {
+    flex: 1;
+    min-width: 0;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: inherit;
+    font-size: 13px;
+
+    cursor: pointer;
+}
+
+.settings-row select:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+
+/* ============================================================
+   SETTINGS ACTIONS
+   ============================================================ */
+
+.settings-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+
+    gap: 14px;
+
+    padding: 4px 2px 20px;
+}
+
+.settings-message {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.settings-message.success {
+    color: var(--signal);
+}
+
+.settings-message.error {
+    color: var(--danger);
+}
+
+.deviation-warn {
+    color: var(--idle);
+}
+
+.deviation-high {
+    color: var(--danger);
+}
+
+.settings-actions button {
+    padding: 9px 18px;
+
+    background: var(--text);
+    color: var(--panel);
+
+    border-color: var(--text);
+
+    font-weight: 500;
+}
+
+.settings-actions button:hover {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: #ffffff;
+}
+
+.maintenance-button {
+    flex-shrink: 0;
+
+    padding: 9px 18px;
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+
+    text-decoration: none;
+
+    cursor: pointer;
+}
+
+.maintenance-button:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--panel);
+}
+
+.maintenance-button-danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #ffffff;
+}
+
+/*
+ * Wariant "glowny" - ciemno szare tlo, wyblakly zielony po najechaniu.
+ * Dla glownej akcji na URZADZENIU (np. Paruj, zapis nastawy glowicy) -
+ * akcje na rekordzie (Edytuj/Usun/Testuj w wierszu, "+ Dodaj ...")
+ * maja wariant posredni (.maintenance-button-secondary nizej).
+ */
+.maintenance-button-primary {
+    background: var(--btn-primary-bg);
+    border-color: var(--btn-primary-bg);
+    color: #ffffff;
+}
+
+.maintenance-button-primary:hover {
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
+    color: #ffffff;
+}
+
+/*
+ * Wariant "posredni" - AKCJE NA REKORDZIE: glowna akcja w wierszu listy
+ * (Edytuj, Steruj - Usun/Testuj/Panel zostaja biale), Usun w wierszu tabeli formularza,
+ * strzalki kolejnosci, "+ Dodaj ..." wewnatrz formularza; akcje calego formularza (Zapisz,
+ * Anuluj) zostaja bez zmian.
+ * Wyraznie szare tlo, ciemny tekst: jasniejszy niz
+ * Zapisz (.settings-actions button), ciemniejszy niz zwykly
+ * .maintenance-button. Najechanie jak w zwyklym (z -danger: czerwone).
+ * Po .maintenance-button-danger:hover, wiec z -danger trzeba ponowic
+ * czerwony hover nizej.
+ */
+.maintenance-button-secondary,
+.settings-actions button.maintenance-button.maintenance-button-secondary {
+    background: var(--btn-secondary-bg);
+    border-color: var(--btn-secondary-border);
+    color: var(--text);
+}
+
+.maintenance-button-secondary:hover,
+.settings-actions button.maintenance-button.maintenance-button-secondary:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--panel);
+}
+
+.maintenance-button-secondary.maintenance-button-danger:hover {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #ffffff;
+}
+
+/*
+ * Wariant "ciemny" - jak przycisk Zapisz (.settings-actions button), ale
+ * tez dla linkow <a>: dodanie NOWEGO rekordu z ekranu listy ("+ Dodaj
+ * pomieszczenie/regule/..."). Dodanie wiersza WEWNATRZ formularza
+ * ("+ Dodaj zakres/strefe/...") ma wariant posredni powyzej.
+ */
+.maintenance-button-dark {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--panel);
+}
+
+.maintenance-button-dark:hover {
+    background: var(--signal);
+    border-color: var(--signal);
+    color: #ffffff;
+}
+
+.maintenance-button.confirming {
+    background: var(--danger);
+    border-color: var(--danger);
+    color: #ffffff;
+}
+
+.maintenance-button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.settings-actions button:disabled {
+    opacity: 0.6;
+    cursor: default;
+}
+
+.settings-actions button.maintenance-button {
+    background: var(--panel-alt);
+    color: var(--text);
+    border-color: var(--hairline);
+}
+
+.settings-actions button.maintenance-button:hover {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--panel);
+}
+
+
+@media (max-width: 640px) {
+
+    .settings-row {
+        flex-wrap: wrap;
+    }
+
+    .settings-row input[type="number"] {
+        width: 100%;
+    }
+}
+
+
+/* ============================================================
+   GATE SENSITIVITY TABLE (/edit)
+   ============================================================ */
+
+.gate-table {
+    padding: 4px 0 6px;
+}
+
+.gate-table-row {
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.4fr)
+        90px
+        90px;
+
+    align-items: center;
+
+    gap: 12px;
+
+    padding: 12px 0;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.gate-table-row:last-child {
+    border-bottom: 0;
+}
+
+.gate-table-head {
+    padding-top: 14px;
+    padding-bottom: 10px;
+
+    color: var(--text-muted);
+
+    font-size: 11px;
+    font-weight: 600;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.gate-table-head span:nth-child(2),
+.gate-table-head span:nth-child(3) {
+    text-align: center;
+}
+
+.gate-label {
+    color: var(--text);
+
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.gate-table-row input[type="number"] {
+    width: 100%;
+
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 14px;
+
+    text-align: center;
+}
+
+.gate-table-row input[type="number"]:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+.gate-value {
+    text-align: center;
+
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 14px;
+}
+
+.gate-value-hint {
+    display: block;
+    overflow: hidden;
+
+    margin-top: 2px;
+
+    color: var(--text-muted);
+
+    font-size: 10px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.calib-countdown {
+    margin-bottom: 4px;
+
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 22px;
+    font-weight: 500;
+}
+
+.calib-countdown span {
+    color: var(--info);
+}
+
+@media (max-width: 640px) {
+
+    .gate-table-row {
+        grid-template-columns:
+            minmax(0, 1fr)
+            70px
+            70px;
+
+        gap: 8px;
+    }
+
+    .gate-label {
+        font-size: 12px;
+    }
+}
+
+
+/* ============================================================
+   MOBILE - WIĘKSZA CZCIONKA
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+    body {
+        font-size: 15px;
+    }
+
+    .subtitle {
+        font-size: 13px;
+    }
+
+    .connection-badge {
+        font-size: 12px;
+    }
+
+    .hero-sub {
+        font-size: 14px;
+    }
+
+    .hero-extra {
+        font-size: 13px;
+    }
+
+    .hero-duration-label {
+        font-size: 12px;
+    }
+
+    .hero-duration-value {
+        font-size: 24px;
+    }
+
+    .log-header h2 {
+        font-size: 15px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+
+    .history-summary-status {
+        font-size: 14px;
+    }
+
+    .history-summary-start,
+    .history-summary-duration {
+        font-size: 13px;
+    }
+
+    .history-detail-section-title {
+        font-size: 12px;
+    }
+
+    .history-detail-label,
+    .history-detail-value {
+        font-size: 13px;
+    }
+
+    .history-measurements {
+        font-size: 13px;
+    }
+
+    .history-measurements th {
+        font-size: 12px;
+    }
+
+    .state-badge {
+        font-size: 12px;
+    }
+
+    .history-empty {
+        font-size: 13px;
+    }
+
+    footer {
+        font-size: 12px;
+    }
+
+    .settings-panel-title {
+        font-size: 13px;
+    }
+
+    .settings-row-text label {
+        font-size: 15px;
+    }
+
+    .settings-hint {
+        font-size: 13px;
+    }
+
+    .settings-row input[type="number"] {
+        font-size: 15px;
+    }
+
+    .settings-message {
+        font-size: 14px;
+    }
+
+    .gate-label {
+        font-size: 13px;
+    }
+
+    .gate-table-head {
+        font-size: 12px;
+    }
+
+    .gate-table-row input[type="number"] {
+        font-size: 14px;
+    }
+}
+
+
+/* ============================================================
+   MENU
+   ============================================================ */
+
+.menu {
+    position: relative;
+}
+
+.menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    padding: 0;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel);
+
+    cursor: pointer;
+}
+
+.menu-button:hover {
+    border-color: var(--signal);
+}
+
+.menu-icon,
+.menu-icon::before,
+.menu-icon::after {
+    display: block;
+
+    width: 16px;
+    height: 2px;
+
+    background: var(--text);
+
+    border-radius: 2px;
+}
+
+.menu-icon {
+    position: relative;
+}
+
+.menu-icon::before,
+.menu-icon::after {
+    content: "";
+
+    position: absolute;
+    left: 0;
+}
+
+.menu-icon::before {
+    top: -5px;
+}
+
+.menu-icon::after {
+    top: 5px;
+}
+
+.menu-dropdown {
+    position: absolute;
+
+    top: calc(100% + 8px);
+    right: 0;
+
+    z-index: 10;
+
+    display: flex;
+    flex-direction: column;
+
+    min-width: 190px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: 0 8px 24px rgba(20, 25, 30, 0.12);
+
+    max-height: calc(100vh - 90px);
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.menu-dropdown[hidden] {
+    display: none;
+}
+
+.menu-dropdown a {
+    padding: 11px 14px;
+
+    color: var(--text);
+
+    font-size: 13px;
+    text-decoration: none;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.menu-dropdown a:last-child {
+    border-bottom: 0;
+}
+
+.menu-dropdown a:hover {
+    background: var(--panel-alt);
+    color: var(--signal);
+}
+
+.menu-dropdown a.active {
+    color: var(--signal);
+    font-weight: 600;
+}
+
+.menu-dropdown a.disabled {
+    color: var(--text-faint);
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+.menu-dropdown a.disabled:hover {
+    background: none;
+    color: var(--text-faint);
+}
+
+/* grupy menu (www/layout.py::MENU_ITEMS) - rozwijane, pozycje wciete */
+.menu-group summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+
+    padding: 11px 14px;
+
+    color: var(--text);
+    font-size: 13px;
+
+    cursor: pointer;
+    list-style: none;
+
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.menu-group summary::-webkit-details-marker {
+    display: none;
+}
+
+.menu-group summary::after {
+    content: "\25B8";
+    color: var(--text-faint);
+    transition: transform 0.15s;
+}
+
+.menu-group[open] summary::after {
+    transform: rotate(90deg);
+}
+
+.menu-group summary:hover {
+    background: var(--panel-alt);
+    color: var(--signal);
+}
+
+.menu-group.active > summary {
+    color: var(--signal);
+    font-weight: 600;
+}
+
+.menu-dropdown .menu-group a {
+    display: block;
+    padding-left: 28px;
+}
+
+.menu-dropdown .menu-group a:last-child {
+    border-bottom: 1px solid var(--hairline-soft);
+}
+
+.menu-dropdown .menu-group:last-child a:last-child {
+    border-bottom: 0;
+}
+
+
+/* ============================================================
+   HISTORY PAGINATION
+   ============================================================ */
+
+.history-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 12px;
+
+    padding: 14px 2px 16px;
+}
+
+.history-pagination button {
+    padding: 7px 12px;
+
+    font-size: 12px;
+}
+
+.history-pagination button:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.history-pagination button:disabled:hover {
+    border-color: var(--hairline);
+    color: var(--text);
+}
+
+.history-page-info {
+    color: var(--text-muted);
+
+    font-size: 12px;
+
+    font-family: var(--font-mono);
+}
+
+
+@media (max-width: 640px) {
+
+    .history-pagination button {
+        font-size: 13px;
+    }
+
+    .history-page-info {
+        font-size: 13px;
+    }
+
+    .menu-dropdown a {
+        font-size: 14px;
+        padding: 13px 14px;
+    }
+
+    .menu-group summary {
+        font-size: 14px;
+        padding: 13px 14px;
+    }
+
+    .menu-dropdown .menu-group a {
+        padding-left: 28px;
+    }
+}
+
+
+/* ============================================================
+   MOBILE - CONNECTION ERROR
+   ============================================================ */
+
+@media (max-width: 640px) {
+
+    .connection-error {
+        padding: 20px 0 8px;
+    }
+
+    .connection-error-card {
+        padding: 28px 20px;
+    }
+
+    .connection-error-card h2 {
+        font-size: 20px;
+    }
+
+    .connection-error-card p {
+        font-size: 14px;
+    }
+
+    .connection-retry {
+        width: 100%;
+        padding: 12px 16px;
+
+        font-size: 15px;
+    }
+}
+
+/* ============================================================
+   HISTORY - "POMIJAJ PODOBNE"
+   ============================================================ */
+
+.history-skip-button {
+    margin-top: 10px;
+
+    padding: 6px 12px;
+
+    color: var(--text-muted);
+
+    font-size: 12px;
+}
+
+.history-skip-button:hover {
+    border-color: var(--signal);
+    color: var(--signal);
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 20px;
+
+    background: rgba(15, 18, 22, 0.55);
+}
+
+.modal-overlay[hidden] {
+    display: none;
+}
+
+.modal-card {
+    width: 100%;
+    max-width: 440px;
+    max-height: calc(100vh - 40px);
+
+    overflow-y: auto;
+
+    padding: 24px;
+
+    background: var(--panel);
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    box-shadow: var(--shadow);
+}
+
+.modal-card h2 {
+    margin: 0 0 8px;
+
+    color: var(--text);
+
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    margin: 16px 0;
+}
+
+.modal-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+
+    padding: 10px 12px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    cursor: pointer;
+}
+
+.modal-option:hover {
+    border-color: var(--signal);
+}
+
+.modal-option input {
+    margin-top: 3px;
+    flex: none;
+}
+
+.modal-option span {
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* okno nowego urzadzenia Zigbee (www/devices_config.py, devices_list.js):
+ * opis urzadzenia + pole nazwy */
+.modal-info {
+    margin: 12px 0 16px;
+
+    color: var(--text);
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.modal-info b {
+    font-weight: 600;
+}
+
+.modal-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+
+    margin-bottom: 12px;
+}
+
+.modal-field label {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.modal-field input {
+    padding: 8px 10px;
+
+    border: 1px solid var(--hairline);
+    border-radius: var(--radius);
+
+    background: var(--panel-alt);
+    color: var(--text);
+
+    font-family: var(--font-mono);
+    font-size: 13px;
+}
+
+.modal-field input:focus {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+
+/* ============================================================
+   CHECKBOX - wspolny wyglad (formularze regul, pomieszczen, prognoz
+   itd.). Na koncu pliku i z drugim selektorem ".settings-row >", zeby
+   wygrac z ".settings-row > input:not([type=number])" (rozciaga pole
+   na cala szerokosc, np. www/event_form.py).
+   ============================================================ */
+
+input[type="checkbox"],
+.settings-row > input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+
+    flex: none;
+
+    width: 16px;
+    height: 16px;
+    min-width: 0;
+
+    margin: 0 4px 0 0;
+    padding: 0;
+
+    border: 1.5px solid var(--text-faint);
+    border-radius: 4px;
+
+    background: var(--panel) center / 12px 12px no-repeat;
+
+    vertical-align: middle;
+
+    cursor: pointer;
+}
+
+input[type="checkbox"]:hover {
+    border-color: var(--signal);
+}
+
+input[type="checkbox"]:checked {
+    border-color: var(--signal);
+
+    background-color: var(--signal);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2.5 6.2l2.3 2.3 4.7-4.9' fill='none' stroke='%23fff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+input[type="checkbox"]:focus-visible {
+    outline: 2px solid var(--signal);
+    outline-offset: 1px;
+}
+
+input[type="checkbox"]:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+
+/* legenda trybow pod wynikiem symulacji (www/simulation_report.py) -
+   dluzsze opisy zawijane */
+.mode-legend td {
+    white-space: normal;
+    vertical-align: top;
+
+    font-family: var(--font-sans);
+    line-height: 1.4;
+}
+
+/* wiersz formularza nieaktywny (np. srednie zuzycie w symulacji przy
+   profilu z historii) - etykieta, opis i pole wyszarzone */
+.settings-row.is-disabled {
+    opacity: 0.45;
+}
+
+/* =========================================================
+   ZAKLADKI GRUP URZADZEN (/config/devices/list - www/devices_config.py)
+   ========================================================= */
+
+.dev-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+
+    padding-top: 12px;
+
+    border-bottom: 1px solid var(--hairline);
+}
+
+.dev-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    margin-bottom: -1px;
+    padding: 8px 12px;
+
+    color: var(--text-muted);
+    background: transparent;
+
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+
+    border: 1px solid transparent;
+    border-bottom: 2px solid transparent;
+    border-radius: var(--radius) var(--radius) 0 0;
+
+    cursor: pointer;
+}
+
+.dev-tab:hover {
+    color: var(--text);
+    background: var(--panel-alt);
+}
+
+.dev-tab-active {
+    color: var(--text);
+    border-bottom-color: var(--btn-primary-bg);
+}
+
+.dev-tab-count {
+    min-width: 18px;
+    padding: 1px 6px;
+
+    color: var(--text-muted);
+    background: var(--panel-alt);
+
+    font-size: 11px;
+    text-align: center;
+
+    border: 1px solid var(--hairline);
+    border-radius: 9px;
+}
+
+.dev-tab-count:empty {
+    display: none;
+}
+
+.dev-tab-pane {
+    padding-bottom: 6px;
+}
+
+@media (max-width: 640px) {
+    .dev-tabs {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+    }
+
+    .dev-tab {
+        flex: 0 0 auto;
+    }
+}
