@@ -1,1 +1,1 @@
-{"version":"v1.0.0","commit":"f997dddbb45248cd98ca2075009a70e066f9a59f","project":"ems_display_panel","chip":"esp32s3","firmware":{"asset":"ota-ems_display_panel.bin","size":2801408,"sha256":"d26daf6583095fcbbfb2fa5f167a7b050fec6374c6e0d8020cf2bff8f5fdbbfa"}}
+{"version":"v1.0.1","commit":"016839b4a3e4bf6057972d3e4372c62c6beecd60","project":"ems_display_panel","chip":"esp32s3","firmware":{"asset":"ota-ems_display_panel.bin","size":2798736,"sha256":"376bc37bb6d2bcb46e66ac64b00845fe449e9335aa6876755f3870b4fde5a57b"}}
