@@ -251,7 +251,7 @@
         var slots = selectedSlots();
         if (!slots.length) { return; }
         if (!window.confirm("Przenieść " + slots.length +
-                " zaznaczonych slotów? W biorcy zostaną zmienione tylko brakujące lub zerowe wartości. " +
+                " zaznaczonych slotów? W biorcy zostaną zmienione tylko brakujące, puste lub zerowe wartości. " +
                 "Wartości dawcy zostaną wyczyszczone wyłącznie po udanym przeniesieniu.")) {
             return;
         }
@@ -315,6 +315,86 @@
         transferNextDay(0);
     }
 
+    // caly wybrany zakres: dla kazdego dnia podglad -> sloty "eligible" -> zapis (backend
+    // przyjmuje jeden dzien naraz i przy zapisie ponownie sprawdza kazdy slot)
+    var rangeEl = el("migration-transfer-range");
+
+    function transferRange() {
+        var days = filteredDays();
+        if (!days.length) {
+            status("Brak zapisanych dni w wybranym zakresie.", true);
+            return;
+        }
+        if (sourceEl.value === targetEl.value) {
+            status("Dawca i biorca muszą być różnymi urządzeniami.", true);
+            return;
+        }
+        if (!window.confirm("Przenieść wszystkie możliwe sloty z " + days.length + " dni (" +
+                days[0] + " – " + days[days.length - 1] + ") z " +
+                sourceEl.options[sourceEl.selectedIndex].text + " do " +
+                targetEl.options[targetEl.selectedIndex].text + "? " +
+                "W biorcy zostaną zmienione tylko brakujące, puste lub zerowe wartości. " +
+                "Wartości dawcy zostaną wyczyszczone wyłącznie po udanym przeniesieniu.")) {
+            return;
+        }
+
+        var source = sourceEl.value;
+        var target = targetEl.value;
+        var moved = 0;
+        var skipped = 0;
+        var errors = [];
+        rangeEl.disabled = true;
+        invalidatePreview("Przenoszenie…", true);
+
+        function query(day) {
+            return "?date=" + encodeURIComponent(day) + "&source=" + encodeURIComponent(source) +
+                "&target=" + encodeURIComponent(target);
+        }
+
+        function next(index) {
+            if (index >= days.length) {
+                rangeEl.disabled = false;
+                var message = "Zakres " + days[0] + " – " + days[days.length - 1] +
+                    ": przeniesiono " + moved + ", pominięto " + skipped + ".";
+                if (errors.length) { message += " Błędy: " + errors.join(", ") + "."; }
+                status(message, errors.length > 0);
+                return;
+            }
+
+            var day = days[index];
+            status("Dzień " + day + " (" + (index + 1) + "/" + days.length + "), dotąd przeniesiono " + moved + "…");
+            fetch("/report/energy/consumption/migration/preview" + query(day))
+                .then(function (response) { return response.json(); })
+                .then(function (data) {
+                    if (data.error) { throw new Error(errorText(data.error)); }
+                    var slots = (data.slots || []).filter(function (row) { return row.eligible; })
+                        .map(function (row) { return { date: day, slot: row.slot }; });
+                    if (!slots.length) { return null; }
+                    return fetch("/report/energy/consumption/migration/transfer", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ source_id: source, target_id: target, slots: slots })
+                    }).then(function (response) { return response.json(); });
+                })
+                .then(function (data) {
+                    if (data) {
+                        if (data.error) { throw new Error(errorText(data.error)); }
+                        moved += data.moved.length;
+                        skipped += data.skipped.length;
+                        data.errors.forEach(function (item) { errors.push(day + " (" + item.error + ")"); });
+                    }
+                    next(index + 1);
+                })
+                .catch(function (error) {
+                    errors.push(day + " (" + error.message + ")");
+                    next(index + 1);
+                });
+        }
+
+        next(0);
+    }
+
+    rangeEl.addEventListener("click", transferRange);
     el("migration-preview").addEventListener("click", function () { loadPreview(); });
     modeEl.addEventListener("change", function () { updateScopeControls(); });
     untilEl.addEventListener("change", function () { updateDayOptions(true); });
