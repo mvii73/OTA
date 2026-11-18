@@ -156,6 +156,8 @@
 .hh-btn-small { padding: 4px 12px; font-size: 14px; }
 
 .hh-water-grid { display: grid; grid-template-columns: minmax(300px, 1fr) 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+/* z kaflem "Kocioł gazowy" - zbiornik, grzalka, kociol, pompa w jednym rzedzie */
+.hh-water-grid.hh-water-grid-4 { grid-template-columns: minmax(300px, 1.2fr) 1fr 1fr 1fr; }
 .hh-card { padding: 16px 18px; }
 .hh-card-title { font-size: 17px; font-weight: 700; margin-bottom: 10px; }
 .hh-card .hh-btn { margin-top: 12px; width: 100%; }
@@ -196,7 +198,7 @@
     .hh-diagram { flex-direction: column; align-items: stretch; }
     .hh-left { grid-template-columns: 1fr; grid-template-rows: none; row-gap: 16px; }
     .hh-boiler, .hh-gateway, .hh-heater, .hh-pump-tile, .hh-supply, .hh-return { grid-column: 1; grid-row: auto; margin: 0; }
-    .hh-water-grid { grid-template-columns: 1fr; }
+    .hh-water-grid, .hh-water-grid.hh-water-grid-4 { grid-template-columns: 1fr; }
     .hh-tiles { grid-template-columns: repeat(2, 1fr); }
     .hh-tiles-left { grid-column: 1; grid-row: auto; }
 }

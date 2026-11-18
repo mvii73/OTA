@@ -57,6 +57,7 @@
     var boostTemp = el("wh-boost-temp");
     var boostMinutes = el("wh-boost-minutes");
     var boostEnd = el("wh-boost-end");
+    var gasMaxTemp = el("wh-gas-max-temp");
     var bathTemp = el("wh-bath-temp");
 
     function fillSelect(select, entries) {
@@ -375,6 +376,7 @@
         boostTemp.value = cfg.boost_temp != null ? cfg.boost_temp : 50;
         boostMinutes.value = cfg.boost_minutes != null ? cfg.boost_minutes : 30;
         boostEnd.value = cfg.boost_end === "temp" ? "temp" : "time";
+        gasMaxTemp.value = cfg.gas_max_temp != null ? cfg.gas_max_temp : 60;
         bathTemp.value = cfg.bath_temp != null ? cfg.bath_temp : 40;
         scheduleList.innerHTML = "";
         (cfg.schedule || []).forEach(function (r) { scheduleList.appendChild(rangeRow(r)); });
@@ -435,6 +437,7 @@
         "device_and_sensor_required": "Do włączenia sterowania wybierz grzałkę i czujnik temperatury.",
         "boost_minutes_out_of_range": "Czas wymuszonego grzania musi być w przedziale 5–240 min.",
         "invalid_boost_end": "Wybierz, kiedy kończy się wymuszone grzanie.",
+        "gas_max_temp_out_of_range": "Temperatura maksymalna grzania gazem musi być w przedziale 30–80 °C.",
     };
 
     function readTemps(row) {
@@ -487,6 +490,7 @@
             boost_temp: parseFloat(boostTemp.value),
             boost_minutes: parseInt(boostMinutes.value, 10),
             boost_end: boostEnd.value,
+            gas_max_temp: parseInt(gasMaxTemp.value, 10),
             bath_temp: parseFloat(bathTemp.value),
             circulation: {
                 enabled: circEnabled.checked,

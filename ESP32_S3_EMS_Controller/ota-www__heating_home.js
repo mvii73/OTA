@@ -337,6 +337,28 @@
         return name ? name + ", " + time : time;
     }
 
+    // kociol gazowy - grzanie zasobnika tylko na zadanie (ems/gas_dhw.py, GET /display/waterHeater -> gas)
+    function gasModel(g) {
+        g = g || {};
+        if (!g.available) { return { available: false }; }
+        var mode = String(g.w_mode || "").toLowerCase();
+        var st = !g.online ? { text: "Brak danych", color: COLOR.muted }
+            : mode !== "water" ? { text: "Wył.", color: COLOR.muted }
+            : g.w_action === "heating" ? { text: "Grzeje", color: COLOR.warm } : { text: "Czeka", color: COLOR.muted };
+        return {
+            available: true,
+            active: !!g.active,
+            state: st,
+            current: fmt(g.w_current, 1, " °C"),
+            target: mode === "water" ? fmt(g.w_target, 0, " °C") : "--",
+            error: g.error || null,
+            end: g.end === "temp" ? "temp" : "time", temp: g.temp != null ? g.temp : 50, minutes: g.minutes || 30,
+            maxTemp: g.max_temp != null ? g.max_temp : 60,
+            label: !g.active ? "Grzej gazem" : g.to_temp && g.target_temp != null ? "Zatrzymaj grzanie do " + fmt(g.target_temp, 0, " °C")
+                : g.until ? "Zatrzymaj grzanie do " + g.until : "Zatrzymaj grzanie"
+        };
+    }
+
     function waterModel(w, c) {
         w = w || {};
         if (!w.configured) { return { configured: false }; }
@@ -365,6 +387,7 @@
                      end: boost.end === "temp" ? "temp" : "time", temp: boost.temp != null ? boost.temp : 50, minutes: boost.minutes || 30,
                      label: !boost.active ? "Włącz grzanie" : boost.to_temp && boost.target_temp != null ? "Zatrzymaj grzanie do " + fmt(boost.target_temp, 0, " °C")
                          : boost.until ? "Zatrzymaj grzanie do " + boost.until : "Zatrzymaj grzanie" },
+            gas: gasModel(w.gas),
             pump: Object.assign({
                 energy: fmt(c && c.energy_today_kwh, 2, " kWh"),
                 last: lastStarted(c)
@@ -508,7 +531,7 @@
     // tab: "co" | "cwu" | "charts"; chart: historia dla chart.hours pobrana o chart.at
     // boostBusy / pumpBusy: napis przycisku grzania wody / pompy cyrkulacyjnej w czasie wysylania
     // (odswiezanie go nie nadpisuje)
-    var state = { heating: null, water: null, circulation: null, popup: null, tab: "co", chart: null, boostBusy: null, pumpBusy: null };
+    var state = { heating: null, water: null, circulation: null, popup: null, tab: "co", chart: null, boostBusy: null, pumpBusy: null, gasBusy: null };
 
     function sectionHeader(title, note) {
         return "<div class=\"hh-head\"><span class=\"hh-title\">" + esc(title) + "</span>" + (note ? "<span class=\"hh-note\">" + esc(note) + "</span>" : "") + "</div>";
@@ -532,7 +555,7 @@
         if (!state.water) { host.innerHTML = "<div class=\"hh-empty\">Wczytywanie…</div>"; return; }
         if (!m.configured) { host.innerHTML = "<div class=\"hh-empty\">Ciepła woda nie jest skonfigurowana (menu: Ciepła woda użytkowa).</div>"; return; }
 
-        var html = "<div class=\"hh-water-grid\">";
+        var html = "<div class=\"hh-water-grid" + (m.gas.available ? " hh-water-grid-4" : "") + "\">";
         html += "<div class=\"hh-card hh-tank-card\">" + tankSvg(m) + "<div><div class=\"hh-muted\">" + esc(m.sensor) + "</div>" +
             "<div class=\"hh-big\" style=\"color:" + m.tempColor + "\">" + esc(m.temp) + "</div>" +
             "<div class=\"hh-muted\">Zadana</div><div class=\"hh-mid\">" + esc(m.target) + "</div>" +
@@ -540,11 +563,21 @@
 
         html += "<div class=\"hh-card\"><div class=\"hh-card-title\">" + esc(m.heater.name) + "</div>" +
             "<div class=\"hh-line\"><span>Stan</span><b>" + esc(m.heater.state) + "</b></div>" +
-            "<div class=\"hh-line\"><span>Sterowanie EMS</span><b>" + esc(m.heater.control) + "</b></div>" +
+            "<div class=\"hh-line\"><span>Sterowanie EMS</span><b>" + esc(m.gas.active ? "wyłączona - grzanie gazem" : m.heater.control) + "</b></div>" +
             "<div class=\"hh-line\"><span>Energia dziś</span><b>" + esc(m.heater.energy) + "</b></div>" +
             "<button type=\"button\" class=\"hh-btn " + (m.boost.active ? "hh-btn-orange" : "hh-btn-orange-outline") + "\" data-act=\"boost\"" +
             (m.boost.active ? " title=\"Kliknij, żeby wrócić do harmonogramu\"" : "") + (m.boost.enabled && !state.boostBusy ? "" : " disabled") + ">" +
             esc(state.boostBusy || m.boost.label) + "</button></div>";
+        if (m.gas.available) {
+            html += "<div class=\"hh-card\"><div class=\"hh-card-title\">Kocioł gazowy</div>" +
+                "<div class=\"hh-line\"><span>Stan</span><b style=\"color:" + m.gas.state.color + "\">" + esc(m.gas.state.text) + "</b></div>" +
+                "<div class=\"hh-line\"><span>Zasobnik wg kotła</span><b>" + esc(m.gas.current) + "</b></div>" +
+                "<div class=\"hh-line\"><span>Zadana kotła</span><b>" + esc(m.gas.target) + "</b></div>" +
+                (m.gas.error ? "<div class=\"hh-line\"><span>Błąd</span><b>" + esc(m.gas.error) + "</b></div>" : "") +
+                "<button type=\"button\" class=\"hh-btn " + (m.gas.active ? "hh-btn-orange" : "hh-btn-orange-outline") + "\" data-act=\"gas\"" +
+                (m.gas.active ? " title=\"Kliknij, żeby zatrzymać grzanie gazem\"" : "") + (state.gasBusy ? " disabled" : "") + ">" +
+                esc(state.gasBusy || m.gas.label) + "</button></div>";
+        }
         html += "<div class=\"hh-card\"><div class=\"hh-card-title\">Pompa cyrkulacyjna</div>" +
             "<div class=\"hh-line\"><span>Stan</span><b style=\"color:" + m.pump.color + "\">" + esc(m.pump.text) + "</b></div>" +
             "<div class=\"hh-line\"><span>Ostatnio uruchomiona</span><b>" + esc(m.pump.last) + "</b></div>" +
@@ -587,20 +620,29 @@
     }
 
     // wymuszone grzanie wody: koniec po czasie (co 15 min) albo po osiagnieciu temperatury (co 5 °C)
+    // kind "gas": kociol gazowy - zadana od 30 °C do temperatury maksymalnej z konfiguracji
+    // zasobnika; na czas kociol grzeje do temperatury maksymalnej i trzyma ja do konca czasu
     var BOOST_STEP = { time: { step: 15, min: 15, max: 240, unit: " min", dec: 0 }, temp: { step: 5, min: 5, max: 85, unit: " °C", dec: 0 } };
 
-    function boostPopup(end, b) {
-        var s = BOOST_STEP[end], v = end === "temp" ? b.temp : b.minutes;
+    function boostPopup(end, b, kind) {
+        var gas = kind === "gas";
+        var s = gas && end === "temp" ? { step: 5, min: 30, max: b.maxTemp, unit: " °C", dec: 0 } : BOOST_STEP[end];
+        var v = end === "temp" ? b.temp : b.minutes;
         v = Math.max(s.min, Math.min(s.max, v));
         function seg(k, name) {
-            return "<button type=\"button\" class=\"hh-seg" + (k === end ? " hh-seg-on" : "") + "\" data-act=\"boost-end\" data-end=\"" + k + "\">" + name + "</button>";
+            return "<button type=\"button\" class=\"hh-seg" + (k === end ? " hh-seg-on" : "") + "\" data-act=\"boost-end\" data-end=\"" + k + "\"" +
+                (gas ? " data-kind=\"gas\"" : "") + ">" + name + "</button>";
         }
-        openPopup("<h3>Grzanie wody</h3><div class=\"hh-segs\">" + seg("time", "Czas") + seg("temp", "Temperatura") + "</div>" +
+        openPopup("<h3>" + (gas ? "Grzanie wody kotłem gazowym" : "Grzanie wody") + "</h3><div class=\"hh-segs\">" + seg("time", "Czas") + seg("temp", "Temperatura") + "</div>" +
+            (gas ? "<p class=\"hh-muted\">" + (end === "time"
+                ? "Kocioł grzeje zasobnik do " + fmt(b.maxTemp, 0, " °C") + " (maksymalna) i utrzymuje ją do końca czasu."
+                : "Kocioł grzeje zasobnik do wybranej temperatury (najwyżej " + fmt(b.maxTemp, 0, " °C") + ", najdłużej 3 h).") +
+                " Grzałka jest w tym czasie wyłączona.</p>" : "") +
             "<div class=\"hh-stepper\"><button type=\"button\" class=\"hh-btn\" data-step=\"-" + s.step + "\">−</button>" +
             "<span id=\"hh-set\" data-v=\"" + v + "\" data-min=\"" + s.min + "\" data-max=\"" + s.max + "\" data-unit=\"" + s.unit +
             "\" data-dec=\"" + s.dec + "\" data-snap=\"1\" data-end=\"" + end + "\">" + fmt(v, s.dec, s.unit) + "</span>" +
             "<button type=\"button\" class=\"hh-btn\" data-step=\"" + s.step + "\">+</button></div>" +
-            "<div class=\"hh-modal-actions hh-modal-actions-center\"><button type=\"button\" class=\"hh-btn hh-btn-orange\" data-act=\"boost-start\">Grzej</button>" +
+            "<div class=\"hh-modal-actions hh-modal-actions-center\"><button type=\"button\" class=\"hh-btn hh-btn-orange\" data-act=\"boost-start\"" + (gas ? " data-kind=\"gas\"" : "") + ">Grzej</button>" +
             "<button type=\"button\" class=\"hh-btn\" data-act=\"close\">Zamknij</button></div>");
     }
 
@@ -637,7 +679,13 @@
         api(url, "POST", body)
             .then(function (res) {
                 if (res && (res.ok === false || res.error)) {
-                    window.alert(res.error === "busy" ? "Kontroler jest zajęty - spróbuj za chwilę." : "Nie udało się: " + (res.error || "błąd"));
+                    var texts = {
+                        busy: "Kontroler jest zajęty - spróbuj za chwilę.",
+                        gas_active: "Trwa grzanie wody kotłem gazowym - grzałka jest wtedy wyłączona. Najpierw zatrzymaj grzanie gazem.",
+                        gas_dhw_unavailable: "Kocioł nie jest sterowany przez DIYLESS - grzanie wody gazem niedostępne.",
+                        control_disabled: "Sterowanie grzałką przez EMS jest wyłączone."
+                    };
+                    window.alert(texts[res.error] || "Nie udało się: " + (res.error || "błąd"));
                 }
             })
             .catch(function () { window.alert("Brak odpowiedzi kontrolera."); })
@@ -694,11 +742,25 @@
             if (wb.active) { boostSend({ action: "cancel" }, "Zatrzymywanie…"); }
             else { boostPopup(wb.end, wb); }
         }
-        else if (act === "boost-end") { boostPopup(actEl.dataset.end, waterModel(state.water, state.circulation).boost); }
+        else if (act === "gas") {
+            var gm = waterModel(state.water, state.circulation).gas;
+            if (gm.active) { closePopup(); waterSend("gasBusy", "/water-heater/gas", { action: "cancel" }, "Zatrzymywanie…"); }
+            else { boostPopup(gm.end, gm, "gas"); }
+        }
+        else if (act === "boost-end") {
+            var wm = waterModel(state.water, state.circulation);
+            boostPopup(actEl.dataset.end, actEl.dataset.kind === "gas" ? wm.gas : wm.boost, actEl.dataset.kind);
+        }
         else if (act === "boost-start") {
             var bs = el("hh-set"), body = { action: "start", end: bs.dataset.end };
             body[bs.dataset.end === "temp" ? "temp" : "minutes"] = Number(bs.dataset.v);
-            boostSend(body, "Uruchamianie…");
+            if (actEl.dataset.kind === "gas") {
+                // na czas - zadana kotla = temperatura maksymalna (ustala kontroler)
+                closePopup();
+                waterSend("gasBusy", "/water-heater/gas", body, "Uruchamianie…");
+            } else {
+                boostSend(body, "Uruchamianie…");
+            }
         }
         else if (act === "skip") {
             var s = waterModel(state.water, state.circulation).plan[Number(actEl.dataset.skip)];
