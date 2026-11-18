@@ -38,7 +38,7 @@
             title: "Sterowanie",
             items: [
                 { key: "setpoint_c", kind: "number", label: "Temperatura zadana", unit: "°C", hint: "Docelowa temperatura w pomieszczeniu" },
-                { key: "mode", kind: "select", label: "Tryb pracy", hint: "Harmonogram, ręczny, eco, komfort, boost..." },
+                { key: "mode", kind: "select", label: "Tryb pracy", hint: "Harmonogram, ręczny, eco, komfort, boost... Nastawę z EMS głowica stosuje tylko w trybie ręcznym - gdy jest przypisana do pomieszczenia, EMS przełącza ją na ręczny (najwyżej co 5 min)." },
                 { key: "force", kind: "select", label: "Wymuszenie zaworu", hint: "Na stałe otwarty/zamknięty zawór, niezależnie od temperatury" }
             ]
         },
