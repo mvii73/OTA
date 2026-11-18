@@ -59,7 +59,9 @@
             row("Straty obliczeniowe budynku", num(s.design_load_kw, 2) + " kW <span class=\"settings-hint\">(" + escapeHtml(s.design_load_source) + ")</span>") +
             row("Zapotrzebowanie na moc", "<b>" + num(s.demand_kw, 2) + " kW</b> <span class=\"settings-hint\">(straty " +
                 num(s.base_kw, 2) + " + dopalanie " + num(s.boost_kw, 2) + "; H = " + num(s.loss_kw_per_k, 3) + " kW/K)</span>") +
-            row("Zasilanie zadane", s.supply_target_c == null ? "– (nic nie grzeje)" : "<b>" + num(s.supply_target_c, 1) + " °C</b>") +
+            row("Zasilanie zadane", s.supply_target_c == null ? "– (nic nie grzeje)" : "<b>" + num(s.supply_target_c, 1) + " °C</b>" +
+                (s.supply_curve_c != null && Math.abs(s.supply_curve_c - s.supply_target_c) >= 0.1
+                    ? " <span class=\"settings-hint\">(wygładzane - z krzywej " + num(s.supply_curve_c, 1) + " °C)</span>" : "")) +
             row("Zasilanie / powrót zmierzone", num(s.supply_c, 1) + " / " + num(s.return_c, 1) + " °C") +
             row("Kocioł gazowy", boilerText) +
             row("Dogrzewacz elektryczny", heaterText) +
@@ -91,7 +93,7 @@
                 "<td>" + escapeHtml(r.source) + "</td>" +
                 "<td class=\"measurement-energy\">" + num(r.target_temp, 1) + " °C</td>" +
                 "<td class=\"measurement-energy\">" + temp + "</td>" +
-                "<td>" + (r.calling ? "<b>grzeje</b>" : "nie") + "</td>" +
+                "<td>" + (r.calling ? "<b>grzeje</b>" : r.demand_hold ? "nie <span class=\"settings-hint\">(podtrzymane zapotrzebowanie)</span>" : "nie") + "</td>" +
                 "<td class=\"measurement-energy\">" + num(r.deficit, 1) + " °C</td>" +
                 "<td class=\"measurement-energy\">" + num(r.loss_kw + r.boost_kw, 2) + " kW</td>" +
                 "<td class=\"measurement-energy\">" + (r.trv_setpoint == null ? "–" : num(r.trv_setpoint, 1) + " °C") + "</td>" +
