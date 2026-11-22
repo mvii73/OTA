@@ -105,6 +105,17 @@ _try_cache_ble_mac_once()
 
 
 # ============================================================
+# PRZEKAZNIK BLE (BLE Hub) - BLE wlaczane PRZED WiFi, patrz
+# komentarz powyzej i naglowek ble_relay.py. Domyslnie wylaczony
+# (BLE_RELAY_ENABLED w config.py) - wtedy nie dotyka radia.
+# ============================================================
+
+import ble_relay
+
+ble_relay.start_early()
+
+
+# ============================================================
 # UART LD2410C
 # ============================================================
 
@@ -155,7 +166,18 @@ sensor_protocol.configure_sensor(uart)
 # ODROCZONE" ponizej).
 gc.collect()
 
-wlan = wifi_setup.wifi_connect()
+try:
+    wlan = wifi_setup.wifi_connect()
+
+except Exception as exc:
+    # WiFi nie wstalo przy aktywnym BLE (np. "WiFi Out of Memory") -
+    # wylacz przekaznik na stale i uruchom sie od nowa bez niego,
+    # zamiast zostac w REPL bez sieci.
+    if ble_relay.is_active():
+        ble_relay.disable("WiFi nie wstalo przy aktywnym BLE: {}".format(exc))
+        import machine
+        machine.reset()
+    raise
 
 
 # ============================================================
@@ -394,6 +416,10 @@ while True:
 
         if wlan:
             presence_webhook.process(wlan.isconnected())
+
+        # Przekaznik BLE - wysylka zebranych adresow do huba (co
+        # BLE_RELAY_SEND_INTERVAL_MS, nieblokujaca wysylka UDP).
+        ble_relay.process(bool(wlan) and wlan.isconnected())
 
         # ----------------------------------------------------
         # ODZYSKIWANIE POLACZENIA WiFi (jesli zerwie sie PO
@@ -636,7 +662,7 @@ while True:
 
             print(
                 "MEM: wolne={} B, po_gc={} B, uptime={} s, "
-                "uart_rx={} B, idf={}, wifi={}".format(
+                "uart_rx={} B, idf={}, wifi={}, ble_relay={}".format(
                     _mem_before_gc,
                     gc.mem_free(),
                     time.ticks_diff(
@@ -645,7 +671,8 @@ while True:
                     ) // 1000,
                     sensor_protocol.uart_rx_bytes,
                     _idf_info,
-                    _wifi_info
+                    _wifi_info,
+                    ble_relay.status_text()
                 )
             )
 
