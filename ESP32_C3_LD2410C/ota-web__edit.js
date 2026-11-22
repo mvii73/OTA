@@ -169,6 +169,17 @@ async function loadSettings() {
 
         renderWebhookNotice(data.webhook || {});
 
+        getElement("ble_relay_enabled").checked =
+            runtime.ble_relay_enabled === true;
+
+        getElement("ble_relay_name").value =
+            runtime.ble_relay_name ?? "";
+
+        getElement("ble_relay_host").value =
+            runtime.ble_relay_host ?? "";
+
+        renderBleRelayState(data.ble_relay);
+
     } catch (error) {
 
         console.error("SETTINGS LOAD ERROR:", error);
@@ -401,6 +412,116 @@ if (document.getElementById("webhook-retry-button")) {
             renderWebhookNotice(data.webhook || {});
         } catch (error) {
             console.error("WEBHOOK RETRY ERROR:", error);
+        }
+    });
+}
+
+/* =========================================================
+   PRZEKAZNIK BLE (/ble-relay)
+   ========================================================= */
+
+function renderBleRelayState(relay) {
+    const el = getElement("ble-relay-state");
+
+    if (!el) {
+        return;
+    }
+
+    if (!relay) {
+        el.textContent = "—";
+        return;
+    }
+
+    if (relay.active) {
+        el.textContent =
+            "Działa: " + (relay.name || "") +
+            " → " + relay.hub +
+            " · adresy RPA: " + relay.seen +
+            " · wysłane: " + relay.sent_addrs +
+            (relay.send_errors ? " · błędy wysyłki: " + relay.send_errors : "");
+        return;
+    }
+
+    if (relay.disabled_reason) {
+        el.textContent =
+            "Wyłączony automatycznie: " + relay.disabled_reason +
+            ". Zaznacz i zapisz, aby spróbować ponownie.";
+        return;
+    }
+
+    el.textContent = relay.enabled
+        ? "Włączony – zacznie działać po restarcie"
+        : "Wyłączony";
+}
+
+const bleRelaySave = getElement("ble-relay-save");
+
+if (bleRelaySave) {
+
+    bleRelaySave.addEventListener("click", async function() {
+
+        const message = getElement("ble-relay-message");
+        const params = new URLSearchParams();
+
+        params.set(
+            "ble_relay_enabled",
+            getElement("ble_relay_enabled").checked ? "1" : "0"
+        );
+
+        params.set(
+            "ble_relay_name",
+            getElement("ble_relay_name").value.trim()
+        );
+
+        params.set(
+            "ble_relay_host",
+            getElement("ble_relay_host").value
+                .trim()
+                .replace(/^https?:\/\//i, "")
+                .replace(/\/+$/, "")
+        );
+
+        bleRelaySave.disabled = true;
+
+        try {
+
+            const response = await fetch("/ble-relay", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: params.toString()
+            });
+
+            const data = await response.json();
+
+            if (!response.ok || data.ok === false) {
+                throw new Error(data.error || ("HTTP " + response.status));
+            }
+
+            renderBleRelayState(data.ble_relay);
+
+            if (message) {
+                message.textContent = data.restart
+                    ? "Zapisano. ESP32 uruchamia się ponownie – odśwież stronę za ok. 30 s."
+                    : "Zapisano.";
+                message.classList.remove("error");
+                message.classList.add("success");
+            }
+
+        } catch (error) {
+
+            console.error("BLE RELAY SAVE ERROR:", error);
+
+            if (message) {
+                message.textContent = "Błąd zapisu: " + error.message;
+                message.classList.remove("success");
+                message.classList.add("error");
+            }
+
+        } finally {
+
+            bleRelaySave.disabled = false;
         }
     });
 }

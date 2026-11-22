@@ -261,6 +261,58 @@
 
 
     <!-- ------------------------------------------------
+         Przekaznik BLE dla BLE Hub (ble_relay.py)
+         ------------------------------------------------- -->
+
+    <section class="settings-panel">
+
+        <div class="settings-panel-title">Przekaźnik BLE (BLE Hub)</div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label for="ble_relay_enabled">Przekazuj telefony do huba</label>
+                <div class="settings-hint">
+                    Czujnik słucha BLE i wysyła hubowi adresy telefonów z tego piętra
+                    (hub rozpoznaje sparowane telefony). Zmiana wymaga restartu ESP32.
+                </div>
+            </div>
+            <input type="checkbox" id="ble_relay_enabled">
+        </div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label for="ble_relay_name">Nazwa w panelu huba</label>
+                <div class="settings-hint">Np. „Parter”. Puste = LD2410C-XXXX</div>
+            </div>
+            <input type="text" id="ble_relay_name" maxlength="23" autocomplete="off">
+        </div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label for="ble_relay_host">Adres IP huba</label>
+                <div class="settings-hint">Puste = broadcast w sieci lokalnej (bez konfiguracji)</div>
+            </div>
+            <input
+                type="text" id="ble_relay_host" maxlength="64" placeholder="broadcast"
+                autocomplete="off" spellcheck="false" pattern="[A-Za-z0-9._\-]*"
+            >
+        </div>
+
+        <div class="settings-row">
+            <div class="settings-row-text">
+                <label>Stan</label>
+                <div class="settings-hint" id="ble-relay-state">&mdash;</div>
+            </div>
+        </div>
+
+        <div class="settings-actions">
+            <span id="ble-relay-message" class="settings-message"></span>
+            <button type="button" id="ble-relay-save" class="maintenance-button">Zapisz</button>
+        </div>
+
+    </section>
+
+    <!-- ------------------------------------------------
          Konserwacja
          ------------------------------------------------- -->
 
