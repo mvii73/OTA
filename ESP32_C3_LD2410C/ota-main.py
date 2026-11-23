@@ -167,7 +167,21 @@ sensor_protocol.configure_sensor(uart)
 gc.collect()
 
 try:
-    wlan = wifi_setup.wifi_connect()
+    if ble_relay.is_active():
+        # Przy aktywnym BLE: nieudane laczenie z zapisana siecia NIE
+        # przechodzi w tryb AP (portal blokuje na zawsze - czujnik
+        # znika z sieci), tylko wylacza przekaznik i restartuje.
+        _wcfg = wifi_setup.load_wifi_config()
+        wlan = None
+        if _wcfg.get("ssid"):
+            wlan = wifi_setup.try_connect_sta(
+                _wcfg["ssid"], _wcfg.get("password", "")
+            )
+        if not wlan:
+            raise OSError("brak polaczenia z WiFi")
+        del _wcfg
+    else:
+        wlan = wifi_setup.wifi_connect()
 
 except Exception as exc:
     # WiFi nie wstalo przy aktywnym BLE (np. "WiFi Out of Memory") -
