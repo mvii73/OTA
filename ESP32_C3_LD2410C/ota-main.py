@@ -433,7 +433,12 @@ while True:
 
         # Przekaznik BLE - wysylka zebranych adresow do huba (co
         # BLE_RELAY_SEND_INTERVAL_MS, nieblokujaca wysylka UDP).
-        ble_relay.process(bool(wlan) and wlan.isconnected())
+        # net_ok: serwer HTTP wystartowal (przy braku pamieci ESP-IDF
+        # z BLE start konczy sie bledem -203 przy dzialajacym WiFi).
+        ble_relay.process(
+            bool(wlan) and wlan.isconnected(),
+            getattr(http_server, "_server_socket", None) is not None,
+        )
 
         # ----------------------------------------------------
         # ODZYSKIWANIE POLACZENIA WiFi (jesli zerwie sie PO
