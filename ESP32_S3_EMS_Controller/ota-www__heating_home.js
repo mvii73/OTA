@@ -10,6 +10,7 @@
     // ==================================================
 
     var REFRESH_MS = 30000;
+    var GAS_WAIT_REFRESH_MS = 5000;
 
     var COLOR = {
         hot: "#ea580c", cold: "#2563eb", off: "#cbd5e1", warm: "#c2410c", humidity: "#0284c7",
@@ -18,7 +19,7 @@
     };
 
     var MODES = {
-        heater_support: ["Dogrzewacz + kocioł", "Dogrzewacz grzeje do swojej mocy, kocioł dokłada resztę."],
+        heater_first: ["Najpierw dogrzewacz", "Do mocy dogrzewacza tylko dogrzewacz, powyżej tylko kocioł. Kocioł nie zastępuje zablokowanego dogrzewacza."],
         boiler_takeover: ["Kocioł przejmuje", "Gdy potrzeba więcej niż moc dogrzewacza, kocioł przejmuje całość."],
         boiler_only: ["Tylko kocioł", "Dogrzewacz nie jest używany."],
         heater_only: ["Tylko dogrzewacz", "Kocioł nie jest używany."]
@@ -335,6 +336,12 @@
         var name = c.last.room;
         (c.rooms || []).forEach(function (r) { if (r.id === c.last.room) { name = r.name || r.id; } });
         return name ? name + ", " + time : time;
+    }
+
+    // zakladka CWU: grzanie gazem wlaczone, kociol jeszcze nie grzeje wody (odswiezanie co GAS_WAIT_REFRESH_MS)
+    function gasWaiting() {
+        var g = state.tab === "cwu" && state.water && state.water.gas;
+        return !!(g && g.active && g.w_action !== "heating");
     }
 
     // kociol gazowy - grzanie zasobnika tylko na zadanie (ems/gas_dhw.py, GET /display/waterHeater -> gas)
@@ -1109,6 +1116,9 @@
         showTab(stored(TAB_KEY));
         load();
         setInterval(function () { if (!state.popup && !document.hidden) { load(); } }, REFRESH_MS);
+        // grzanie wody gazem wlaczone, a kociol jeszcze nie grzeje (start zajmuje kociolowi
+        // od kilkunastu sekund do kilku minut) - zakladka CWU czesciej, zeby "Grzeje" bylo widac od razu
+        setInterval(function () { if (!state.popup && !document.hidden && gasWaiting()) { load(); } }, GAS_WAIT_REFRESH_MS);
     }
 
     window.__heatingHome = { heatingModel: heatingModel, waterModel: waterModel, heatingHtml: heatingHtml, planTable: planTable, valveBars: valveBars, pumpState: pumpState, targetText: targetText };

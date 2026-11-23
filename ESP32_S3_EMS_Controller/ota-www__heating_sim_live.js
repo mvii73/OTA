@@ -54,7 +54,7 @@
             row("Model sterowania", s.strategy === "heater_only" ? "tylko dogrzewacz elektryczny (bez kotła gazowego)"
                 : (s.strategy === "boiler_only" ? "tylko kocioł (bez dogrzewacza)"
                 : (s.strategy === "boiler_takeover"
-                    ? "powyżej mocy dogrzewacza tylko kocioł" : "dogrzewacz + kocioł dokładający resztę"))) +
+                    ? "powyżej mocy dogrzewacza tylko kocioł" : "do mocy dogrzewacza tylko dogrzewacz"))) +
             row("Temperatura zewnętrzna", num(s.outdoor_c, 1) + " °C <span class=\"settings-hint\">(" + escapeHtml(s.outdoor_source) + ")</span>") +
             row("Straty obliczeniowe budynku", num(s.design_load_kw, 2) + " kW <span class=\"settings-hint\">(" + escapeHtml(s.design_load_source) + ")</span>") +
             row("Zapotrzebowanie na moc", "<b>" + num(s.demand_kw, 2) + " kW</b> <span class=\"settings-hint\">(straty " +

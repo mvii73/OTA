@@ -84,7 +84,7 @@
         el("hs-diyless-control").checked = !!cfg.diyless_control;
         el("hs-heater-water-interlock").checked = !!cfg.heater_water_interlock;
         el("hs-heater-control").checked = !!cfg.heater_control;
-        el("hs-strategy").value = cfg.strategy || "heater_support";
+        el("hs-strategy").value = cfg.strategy || "heater_first";
         el("hs-load-source").value = cfg.load_source || "kw";
         el("hs-outdoor-source").value = cfg.outdoor_source || "meteo";
         paramInputs().forEach(function (input) {
