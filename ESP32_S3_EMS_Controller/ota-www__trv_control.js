@@ -63,7 +63,10 @@
                 { key: "temp_accuracy_c", kind: "number", label: "Dokładność regulacji", unit: "°C", hint: "O ile poniżej nastawy głowica zaczyna grzać (-1 … -0,2; mniej = częściej)" },
                 { key: "frost_temp_c", kind: "number", label: "Ochrona przed zamarzaniem", unit: "°C", hint: "Poniżej tej temperatury głowica grzeje zawsze, nawet wyłączona" },
                 { key: "valve_open_pct", kind: "number", label: "Otwarcie zaworu przy grzaniu", unit: "%", hint: "Do ilu procent głowica otwiera zawór, gdy grzeje (100 = całkowicie)" },
-                { key: "valve_close_pct", kind: "number", label: "Otwarcie zaworu bez grzania", unit: "%", hint: "Na ilu procentach zostaje zawór, gdy głowica nie grzeje (0 = zamknięty)" },
+                // TRVZB "valve_closing_degree" (0xFC11/0x600C): stopien ZAMKNIECIA, nie otwarcia - 100 = zawor
+                // zamkniety, gdy glowica nie grzeje; 0 = zawor sie nie zamyka (2026-11-23: wszystkie glowice
+                // mialy 0 po poprzednim, odwrotnym opisie tego pola - grzejniki otwarte bez grzania)
+                { key: "valve_close_pct", kind: "number", label: "Zamknięcie zaworu bez grzania", unit: "%", hint: "Do ilu procent głowica zamyka zawór, gdy nie grzeje (100 = całkowicie zamknięty; 0 = zawór się nie zamyka i grzejnik grzeje cały czas)" },
                 { key: "auto_lock", kind: "bool", label: "Automatyczna blokada", hint: "Blokada przycisków po chwili bezczynności" },
                 { key: "valve_detection", kind: "bool", label: "Wykrywanie zaworu", hint: "Kontrola poprawnego montażu na zaworze" },
                 { key: "window_detection", kind: "window", label: "Wykrywanie otwartego okna", hint: "Po nagłym spadku temperatury głowica zamyka zawór na zadany czas" },

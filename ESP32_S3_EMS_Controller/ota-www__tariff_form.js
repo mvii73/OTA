@@ -28,7 +28,16 @@
     }
 
     var editId = getQueryParam("id");
+    var copyId = getQueryParam("copy");
     var nameInput = el("tariff-name");
+    var fromInput = el("tariff-valid-from");
+    var toInput = el("tariff-valid-to");
+
+    function nextDay(d) {
+        var t = new Date(d + "T12:00:00");
+        t.setDate(t.getDate() + 1);
+        return t.getFullYear() + "-" + ("0" + (t.getMonth() + 1)).slice(-2) + "-" + ("0" + t.getDate()).slice(-2);
+    }
     var zonesList = el("zones-list");
     var fixedCostsList = el("fixed-costs-list");
 
@@ -176,11 +185,11 @@
     // LOAD / SAVE
     // =====================================================
 
-    if (editId) {
+    if (editId || copyId) {
 
-        el("tariff-form-title").textContent = "Edytuj taryfę";
+        el("tariff-form-title").textContent = editId ? "Edytuj taryfę" : "Nowa taryfa na nowy okres (kopia)";
 
-        api("/tariffs/" + editId).then(function (t) {
+        api("/tariffs/" + (editId || copyId)).then(function (t) {
 
             if (t.error) {
                 setStatus("Błąd: " + t.error, true);
@@ -188,6 +197,15 @@
             }
 
             nameInput.value = t.name || "";
+
+            if (editId) {
+                fromInput.value = t.valid_from || "";
+                toInput.value = t.valid_to || "";
+            } else {
+                // kopia: okres od dnia po koncu zrodla (gdy ma koniec), ceny do zmiany
+                fromInput.value = t.valid_to ? nextDay(t.valid_to) : "";
+                el("tariff-form-title").textContent = "Nowa taryfa na podstawie \"" + (t.name || copyId) + "\" - podaj okres i nowe ceny";
+            }
 
             (t.zones || []).forEach(function (zone) {
                 zonesList.appendChild(zoneEl(zone));
@@ -259,7 +277,20 @@
             };
         });
 
-        var data = { name: name, zones: zones, fixed_monthly_costs: fixedCosts };
+        if (copyId && !fromInput.value) {
+            setStatus("Podaj początek okresu nowej taryfy.", true);
+            return;
+        }
+
+        if (fromInput.value && toInput.value && toInput.value < fromInput.value) {
+            setStatus("Koniec okresu przed jego początkiem.", true);
+            return;
+        }
+
+        var data = {
+            name: name, zones: zones, fixed_monthly_costs: fixedCosts,
+            valid_from: fromInput.value || null, valid_to: toInput.value || null,
+        };
 
         setStatus("Zapisywanie...", false);
 

@@ -24,18 +24,20 @@
             .then(function (res) {
 
                 var tariffs = res.tariffs || {};
-                var activeId = res.active_id;
 
-                var options = "<option value=\"\">(aktywna" + (activeId && tariffs[activeId] ? " - " + escapeHtml(tariffs[activeId].name) : "") + ")</option>";
+                // domyslnie kazdy dzien wg taryfy obowiazujacej tego dnia (okresy obowiazywania)
+                var options = "<option value=\"\">(obowiązująca w danym dniu)</option>";
 
                 options += Object.keys(tariffs).map(function (id) {
-                    return "<option value=\"" + id + "\">" + escapeHtml(tariffs[id].name || id) + "</option>";
+                    var t = tariffs[id];
+                    var period = t.valid_from || t.valid_to ? " · " + (t.valid_from || "…") + " – " + (t.valid_to || "…") : "";
+                    return "<option value=\"" + id + "\">" + escapeHtml((t.name || id) + period) + "</option>";
                 }).join("");
 
                 tariffSelect.innerHTML = options;
             })
             .catch(function () {
-                tariffSelect.innerHTML = "<option value=\"\">(aktywna)</option>";
+                tariffSelect.innerHTML = "<option value=\"\">(obowiązująca w danym dniu)</option>";
             });
     }
 

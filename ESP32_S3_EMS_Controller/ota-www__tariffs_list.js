@@ -99,16 +99,44 @@
         return renderZonesTable(t.zones || []) + renderFixedCosts(t.fixed_monthly_costs || []);
     }
 
+    function plDate(d) {
+        return d ? d.slice(8, 10) + "." + d.slice(5, 7) + "." + d.slice(0, 4) : "";
+    }
+
+    function periodText(t) {
+        if (!t.valid_from && !t.valid_to) { return ""; }
+        if (t.valid_from && t.valid_to) { return plDate(t.valid_from) + " – " + plDate(t.valid_to); }
+        if (t.valid_from) { return "od " + plDate(t.valid_from) + " (bezterminowo)"; }
+        return "do " + plDate(t.valid_to);
+    }
+
+    // kolejnosc: taryfy z okresem chronologicznie, potem domyslna, potem pozostale (porownawcze)
+    function sortedIds(tariffs) {
+        function rank(id) {
+            var t = tariffs[id];
+            if (t.valid_from || t.valid_to) { return "0" + (t.valid_from || "0000"); }
+            return id === _activeId ? "1" : "2" + (t.name || id);
+        }
+        return Object.keys(tariffs).sort(function (a, b) { return rank(a) < rank(b) ? -1 : rank(a) > rank(b) ? 1 : 0; });
+    }
+
     function render(data) {
 
         _activeId = data.active_id;
 
         var tariffs = data.tariffs || {};
-        var ids = Object.keys(tariffs);
+        var ids = sortedIds(tariffs);
+        var current = data.current_id && tariffs[data.current_id];
+
+        el("tariffs-today").textContent = current
+            ? "Dziś (" + plDate(data.today) + ") obowiązuje: " + (current.name || data.current_id) +
+              (current.valid_from || current.valid_to ? ", " + periodText(current) : " (taryfa domyślna)") + "."
+            : "";
 
         activeSelect.innerHTML = ids.map(function (id) {
             var selected = id === _activeId ? " selected" : "";
-            return "<option value=\"" + id + "\"" + selected + ">" + escapeHtml(tariffs[id].name || id) + "</option>";
+            var period = periodText(tariffs[id]);
+            return "<option value=\"" + id + "\"" + selected + ">" + escapeHtml((tariffs[id].name || id) + (period ? " · " + period : "")) + "</option>";
         }).join("");
 
         if (!ids.length) {
@@ -120,13 +148,17 @@
 
             var t = tariffs[id];
             var name = t.name || id;
-            var badge = id === _activeId ? " <span class=\"state-badge state-1\">aktywna</span>" : "";
+            var period = periodText(t);
+            var badge = (id === data.current_id ? " <span class=\"state-badge state-1\">obowiązuje dziś</span>" : "") +
+                (id === _activeId ? " <span class=\"state-badge\">domyślna</span>" : "") +
+                (!period && id !== _activeId ? " <span class=\"state-badge\">tylko porównania</span>" : "");
 
             return "<div class=\"settings-row settings-row-collapsible\" data-tariff-toggle=\"" + id + "\" style=\"cursor:pointer\">" +
                 "<div class=\"settings-row-text\"><label>" + escapeHtml(name) + badge + "</label>" +
-                "<div class=\"settings-hint\">" + escapeHtml(tariffSummary(t)) + "</div></div>" +
+                "<div class=\"settings-hint\">" + (period ? "<strong>" + escapeHtml(period) + "</strong> · " : "") + escapeHtml(tariffSummary(t)) + "</div></div>" +
                 "<div class=\"settings-row-buttons\">" +
                 "<button type=\"button\" class=\"maintenance-button maintenance-button-danger\" data-delete=\"" + id + "\" data-name=\"" + escapeHtml(name) + "\">Usuń</button>" +
+                "<a href=\"/config/tariffs/form?copy=" + encodeURIComponent(id) + "\" class=\"maintenance-button maintenance-button-secondary\">Kopiuj na nowy okres</a>" +
                 "<a href=\"/config/tariffs/form?id=" + encodeURIComponent(id) + "\" class=\"maintenance-button maintenance-button-secondary\">Edytuj</a>" +
                 "</div>" +
                 "<span class=\"settings-row-arrow\" data-tariff-arrow=\"" + id + "\">&#9662;</span>" +
@@ -161,6 +193,8 @@
     });
 
     listEl.addEventListener("click", function (e) {
+
+        if (e.target.closest("a")) { return; }
 
         var deleteId = e.target.getAttribute("data-delete");
 
