@@ -106,6 +106,22 @@
         };
     }
 
+    // nastawa algorytmu wygladzania zapotrzebowania (ems/heating_sim.py 3b, pole "smooth") - fala;
+    // tooltip - opis zrodla zadanej ("wygładzanie: wcześniejszy start 09:00-18:00 (od 09:00)")
+    var SMOOTH = {
+        prestart: "Nastawa algorytmu wygładzania - wcześniejszy start harmonogramu (kocioł grzeje dalej)",
+        early_end: "Nastawa algorytmu wygładzania - wcześniejsze zakończenie harmonogramu (grzanie zostaje na dogrzewaczu)",
+        no_start: "Nastawa algorytmu wygładzania - bez startu tuż przed końcem zakresu harmonogramu",
+        boost: "Nastawa algorytmu wygładzania - podbita zadana (kocioł grzeje dalej)"
+    };
+
+    function smoothIcon(r) {
+        var kind = r.raw.smooth;
+        if (!SMOOTH[kind]) { return null; }
+        var src = String(r.raw.source || "").replace(/^wygładzanie: /, "");
+        return { title: SMOOTH[kind] + (src ? ": " + src : ""), color: COLOR.blue, name: "airwave" };
+    }
+
     // niska bateria urzadzenia pomieszczenia (ems/device_alerts.py::room_battery()): prawie pusta
     // (do 20%) - zolta, pusta (do 5%) - czerwona; tooltip - urzadzenie i poziom
     function batteryIcon(b) {
@@ -119,7 +135,7 @@
 
     // ikony stanu w jednej grupie (to samo miejsce w kaflu), kazda z wlasnym tooltipem
     function roomIcons(r) {
-        var icons = [presenceIcon(r.presence), manualIcon(r), humidIcon(r), batteryIcon(r.raw.battery)].filter(Boolean);
+        var icons = [presenceIcon(r.presence), manualIcon(r), smoothIcon(r), humidIcon(r), batteryIcon(r.raw.battery)].filter(Boolean);
         if (!icons.length) { return ""; }
         return "<span class=\"hh-room-icons\">" + icons.map(function (i) {
             return "<span class=\"material-symbols-rounded hh-icon" + (i.cls ? " " + i.cls : "") + "\" role=\"img\" style=\"color:" + i.color + "\" title=\"" +
