@@ -1,1 +1,1 @@
-{"version":"v2.2.6","commit":"6c62ece33443936a29c4f7512fa79fd1d2d022e2","project":"ld2410c","chip":"esp32c3","firmware":{"asset":"ota-ld2410c.bin","size":1265456,"sha256":"9f1ac6c1363108facf8304677f459b9dba59fb3b5c53de5a5ea65d3fe06be69d"}}
+{"version":"v2.2.7","commit":"301df1b8294712789ba802728c7877b473b39aba","project":"ld2410c","chip":"esp32c3","firmware":{"asset":"ota-ld2410c.bin","size":1267088,"sha256":"4415b5c5cd8e1f8c8a0fa41690ee73627e40f5f892521f3a6602e001b7e308b6"}}
