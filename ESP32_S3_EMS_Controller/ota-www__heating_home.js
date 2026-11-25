@@ -169,7 +169,8 @@
         }
         var lines = [];
         if (r.has_sensor) { lines.push(line("czujnik zewnętrzny", r.sensor_temp, r.sensor_info)); }
-        if (r.has_trv) { lines.push(line("czujnik głowicy", r.trv_temp && r.trv_temp.temp, r.trv_temp)); }
+        // glowica na czujniku zewnetrznym podaje ten sam odczyt - bez osobnego wiersza
+        if (r.has_trv && !r.trv_external) { lines.push(line("czujnik głowicy", r.trv_temp && r.trv_temp.temp, r.trv_temp)); }
         return lines.length ? lines.join("<br>") : null;
     }
 
@@ -239,7 +240,6 @@
             state: state,
             setpointLabel: sp ? (sp.kind === "supply" ? "Zasilanie" : "Wirtualna temperatura") : null,
             setpoint: sp ? fmt(sp.c, 1, " °C") : null,
-            model: g.model || "brak danych",
             ch: actionState(g.ch_action),
             dhw: actionState(g.dhw_action),
             range: g.ch_min_c != null && g.ch_max_c != null ? fmt(g.ch_min_c, 0) + "–" + fmt(g.ch_max_c, 0) + " °C" : null,
@@ -474,7 +474,6 @@
             html += sourceTile({
                 cls: "hh-gateway", accent: accent(g.state), title: "Bramka OpenTherm", badge: badge(g.state),
                 rows: (g.setpointLabel ? kv(g.setpointLabel, g.setpoint) : "") +
-                    kv("Model pracy", g.model) +
                     (g.ch ? kv("Status CO", g.ch.text, g.ch.color) : "") +
                     (g.dhw ? kv("Status CWU", g.dhw.text, g.dhw.color) : "") +
                     (g.range ? kv("Zakres zasilania", g.range) : "") +
