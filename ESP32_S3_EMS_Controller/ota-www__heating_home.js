@@ -159,7 +159,10 @@
 
     function roomState(room) {
         if (room.heating == null) { return { label: "Brak głowicy", color: COLOR.muted }; }
-        return room.heating ? { label: "Grzanie", color: COLOR.warm } : { label: "Oczekiwanie", color: COLOR.muted };
+        if (room.heating) { return { label: "Grzanie", color: COLOR.warm }; }
+        // przestalo grzac, ale liczy sie do mocy i zasilania (minimalny czas zapotrzebowania)
+        if (room.hold_until) { return { label: "Podtrzymanie do " + room.hold_until, color: COLOR.warm }; }
+        return { label: "Oczekiwanie", color: COLOR.muted };
     }
 
     function powerText(w) {
