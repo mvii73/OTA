@@ -18,6 +18,33 @@
     var titleEl = document.getElementById("trv-title");
     var statusEl = document.getElementById("trv-status");
 
+    // wersja firmware glowicy (GET/POST /zigbee/devices/<ieee>/firmware, zapamietana przy
+    // urzadzeniu) - wiersz "Firmware" w odczytach; bez zapamietanej - jedno zapytanie glowicy
+    var _firmware = null;
+
+    function firmwareText(fw) {
+        if (!fw) { return null; }
+        var parts = [];
+        if (fw.sw_build) { parts.push(fw.sw_build); }
+        if (fw.date_code) { parts.push("z " + fw.date_code); }
+        if (fw.ota_file_version != null) { parts.push("plik OTA 0x" + ("0000000" + fw.ota_file_version.toString(16)).slice(-8)); }
+        return parts.length ? parts.join(" · ") : null;
+    }
+
+    function loadFirmware(ask) {
+        fetch("/zigbee/devices/" + ieee + "/firmware").then(function (r) { return r.json(); }).then(function (res) {
+            var text = res && !res.error ? firmwareText(res.firmware) : null;
+            if (text) {
+                _firmware = text;
+                if (_state) { renderReadings(_state); }
+            } else if (ask) {
+                fetch("/zigbee/devices/" + ieee + "/firmware", {
+                    method: "POST", headers: { "Content-Type": "application/json" }, body: "{}"
+                }).then(function () { setTimeout(function () { loadFirmware(false); }, 6000); });
+            }
+        }).catch(function () {});
+    }
+
     var ON_OFF = { "1": "włączone", "0": "wyłączone" };
 
     var READINGS = [
@@ -223,6 +250,8 @@
         }
         html += "<div class=\"trv-reading\"><div class=\"trv-reading-label\">Połączenie</div>" +
             "<div class=\"trv-value\">" + esc(avail) + "</div></div>";
+        html += "<div class=\"trv-reading\"><div class=\"trv-reading-label\">Firmware</div>" +
+            "<div class=\"trv-value\">" + esc(_firmware || "—") + "</div></div>";
 
         readingsEl.innerHTML = html;
     }
@@ -366,6 +395,7 @@
                 titleEl.textContent = (state.name ? state.name + " · " : "") + state.model + " · " + state.ieee;
                 if (first) {
                     renderSections(state.capabilities);
+                    loadFirmware(true);
                 }
                 renderReadings(state);
                 fillControls(state);

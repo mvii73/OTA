@@ -56,6 +56,7 @@
         "invalid_days": "Każdy zakres musi mieć zaznaczony co najmniej jeden dzień.",
         "empty_range": "Godzina \"od\" i \"do\" zakresu nie mogą być takie same.",
         "temp_out_of_range": "Temperatura musi być w przedziale 5–30 °C.",
+        "free_radiator_temp_required": "Podaj temperaturę na niesterowanej głowicy.",
         "invalid_presence_min": "Obecność: podaj liczbę minut 0–8640.",
         "presence_sensor_required": "Zakres harmonogramu z kontrolą obecności wymaga czujnika obecności (Konfiguracja pomieszczenia) - wybierz czujnik albo ustaw obecność 0 w harmonogramie.",
         "invalid_manual_hold": "Tryb ręczny: podaj liczbę minut 0–1440.",
@@ -196,6 +197,17 @@
         var heaterSelect = el("room-heater");
         var manualHoldInput = el("room-manual-hold");
         var volumeInput = el("room-volume");
+        var freeRadiator = el("room-free-radiator");
+        var freeTempInput = el("room-free-temp");
+
+        function updateFreeRadiator() {
+            el("room-free-temp-row").hidden = !freeRadiator.checked;
+        }
+
+        freeRadiator.addEventListener("change", function () {
+            if (freeRadiator.checked && freeTempInput.value === "") { freeTempInput.value = 18; }
+            updateFreeRadiator();
+        });
         var humidityEnabled = el("room-humidity-enabled");
         var humiditySelect = el("room-humidity-sensor");
         var maxTempInput = el("room-max-temp");
@@ -311,6 +323,9 @@
             setSelectValue(heaterSelect, room.heater_device_id);
             manualHoldInput.value = room.manual_hold_min != null ? room.manual_hold_min : 120;
             volumeInput.value = room.volume_m3 != null ? room.volume_m3 : "";
+            freeRadiator.checked = !!room.free_radiator;
+            freeTempInput.value = room.free_radiator_temp != null ? room.free_radiator_temp : "";
+            updateFreeRadiator();
             humidityEnabled.checked = room.humidity_enabled != null ? !!room.humidity_enabled : room.humidity_max != null;
             setSelectValue(humiditySelect, room.humidity_sensor_id);
             maxTempInput.value = room.max_temp != null ? room.max_temp : "";
@@ -340,6 +355,8 @@
                 heater_device_id: heaterSelect.value || null,
                 manual_hold_min: manualHoldInput.value === "" ? 120 : parseInt(manualHoldInput.value, 10),
                 volume_m3: volumeInput.value === "" ? null : parseFloat(volumeInput.value),
+                free_radiator: freeRadiator.checked,
+                free_radiator_temp: freeTempInput.value === "" ? null : parseFloat(freeTempInput.value),
                 humidity_enabled: humidityEnabled.checked,
                 humidity_sensor_id: humiditySelect.value || null,
                 max_temp: maxTempInput.value === "" ? null : parseFloat(maxTempInput.value),
