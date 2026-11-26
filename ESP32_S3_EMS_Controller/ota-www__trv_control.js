@@ -178,9 +178,14 @@
         return "";
     }
 
+    // parametry, ktorych glowica (jej model) nie obsluguje - bez wiersza; sekcja bez zadnego - pominieta
     function renderSections(caps) {
         sectionsEl.innerHTML = SECTIONS.map(function (section) {
-            var rows = section.items.map(function (item) {
+            var items = section.items.filter(function (item) { return caps[item.key]; });
+            if (!items.length) {
+                return "";
+            }
+            var rows = items.map(function (item) {
                 var cap = caps[item.key];
                 var wide = item.kind === "schedule" || item.kind === "week";
                 return "<div class=\"" + rowClass(cap) + "\" data-key=\"" + item.key + "\"" +
@@ -201,10 +206,9 @@
         var values = state.values;
         var caps = state.capabilities;
 
-        var html = READINGS.map(function (r) {
+        var html = READINGS.filter(function (r) { return caps[r.key]; }).map(function (r) {
             var has = r.key in values && values[r.key] !== null;
-            var cls = "trv-reading" + (caps[r.key] ? "" : " trv-row-disabled");
-            return "<div class=\"" + cls + "\"><div class=\"trv-reading-label\">" + esc(r.label) + "</div>" +
+            return "<div class=\"trv-reading\"><div class=\"trv-reading-label\">" + esc(r.label) + "</div>" +
                 "<div class=\"trv-value\">" + (has ? esc(r.fmt(values[r.key])) : "—") + "</div></div>";
         }).join("");
 

@@ -80,8 +80,64 @@
             if (selectedIeee) {
                 select.value = selectedIeee;
             }
+            // bez zapamietanej wersji - zapytanie od razu, tylko przy edycji (nie przy dodawaniu)
+            showFirmware(select, !!getQueryParam("id"));
         });
     }
+
+    // wersja firmware urzadzenia Zigbee (GET/POST /zigbee/devices/<ieee>/firmware,
+    // drivers/uart_zigbee.py::firmware_read()) - wiersz "<prefiks>-firmware" pod lista
+    // "<prefiks>-ieee"; bez zapamietanej wersji - zapytanie urzadzenia od razu ("auto")
+    function firmwareText(fw) {
+        if (!fw) { return null; }
+        var parts = [];
+        if (fw.sw_build) { parts.push("wersja " + fw.sw_build); }
+        if (fw.ota_file_version != null) { parts.push("plik OTA 0x" + ("0000000" + fw.ota_file_version.toString(16)).slice(-8)); }
+        if (fw.app_version != null) { parts.push("aplikacja " + fw.app_version); }
+        if (fw.hw_version != null) { parts.push("sprzęt " + fw.hw_version); }
+        if (fw.date_code) { parts.push("data " + fw.date_code); }
+        return parts.length ? parts.join(" · ") : null;
+    }
+
+    function showFirmware(select, auto, retries) {
+        var target = el(select.id.replace(/-ieee$/, "-firmware"));
+        var ieee = select.value;
+        if (!target) { return; }
+        if (!ieee) { target.textContent = "--"; return; }
+        api("/zigbee/devices/" + ieee + "/firmware").then(function (res) {
+            if (select.value !== ieee) { return; }
+            var text = res && !res.error ? firmwareText(res.firmware) : null;
+            if (text) { target.textContent = text; return; }
+            if (auto) { readFirmware(select); return; }
+            if (retries > 0) {
+                target.textContent = "Czekam na odpowiedź urządzenia…";
+                setTimeout(function () { showFirmware(select, false, retries - 1); }, 4000);
+                return;
+            }
+            target.textContent = "Brak odpowiedzi (urządzenie uśpione albo nie podaje wersji) - spróbuj ponownie";
+        });
+    }
+
+    function readFirmware(select) {
+        var target = el(select.id.replace(/-ieee$/, "-firmware"));
+        if (!select.value) { return; }
+        target.textContent = "Odczyt…";
+        api("/zigbee/devices/" + select.value + "/firmware", "POST", {}).then(function (res) {
+            if (res && res.error) { target.textContent = "Błąd: " + res.error; return; }
+            setTimeout(function () { showFirmware(select, false, 4); }, 3000);
+        });
+    }
+
+    ["sensor-ieee", "device-ieee"].forEach(function (id) {
+        var select = el(id);
+        if (!select) { return; }
+        select.addEventListener("change", function () { showFirmware(select, true); });
+    });
+
+    document.addEventListener("click", function (e) {
+        var btn = e.target.closest && e.target.closest("[data-firmware-read]");
+        if (btn) { readFirmware(el(btn.dataset.firmwareRead + "-ieee")); }
+    });
 
     var editId = getQueryParam("id");
 
