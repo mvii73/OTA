@@ -1,1 +1,1 @@
-{"version":"v1.2.5","commit":"4ca7746c48f37cccd24d6bcb9427f8318ec2e6f1","project":"ble_hub","chip":"esp32s3","firmware":{"asset":"ota-ble_hub.bin","size":1386720,"sha256":"e1b28a83e23813598cdac618761bee5611b16a0342823568530c261834cd17f2"}}
+{"version":"v1.3.0","commit":"6d527eef49b817cadb24eea7abc2fdb36d77e2e3","project":"ble_hub","chip":"esp32s3","firmware":{"asset":"ota-ble_hub.bin","size":2258064,"sha256":"e1ac0ae0204fc04b0a1987605517224319c5a8f198ade5fa39650295d0bce1d3"}}
