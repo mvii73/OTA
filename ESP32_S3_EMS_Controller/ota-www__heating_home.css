@@ -148,6 +148,7 @@
 .hh-btn-green-outline { background: transparent; border-color: #16a34a; color: #16a34a; }
 .hh-btn-orange { background: #ea580c; border-color: #ea580c; color: #fff; }
 .hh-btn-red { background: #dc2626; border-color: #dc2626; color: #fff; }
+.hh-plan-off { opacity: .45; }
 .hh-mode .hh-btn-red, .hh-btn-mode.hh-btn-red { background: #dc2626; border-color: #dc2626; }
 .hh-away-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 0 0 18px; font-size: 15px; }
 .hh-away-end input { font-size: 16px; padding: 6px 8px; }

@@ -419,6 +419,8 @@
                 last: lastStarted(c)
             }, pumpState(c)),
             plan: segs,
+            // tryb Away - plan wylaczony do powrotu (ems/water_heater.py "away_until")
+            away: w.away_until || null,
             reason: w.reason || null
         };
     }
@@ -617,7 +619,10 @@
 
         html += "</div>";
 
-        html += "<div class=\"hh-card hh-plan\"><div class=\"hh-card-title\">Plan na dziś</div>" + planTable(m.plan) + "</div>";
+        html += "<div class=\"hh-card hh-plan\"><div class=\"hh-card-title\">Plan na dziś</div>" +
+            (m.away ? "<p class=\"hh-warn\">Plan wyłączony - tryb Away. Grzałka nie grzeje do " + esc(m.away) +
+                " (powrót do harmonogramu); ręczne grzanie nadal działa.</p><div class=\"hh-plan-off\">" + planTable(m.plan) + "</div>"
+                : planTable(m.plan)) + "</div>";
         host.innerHTML = html;
     }
 
