@@ -353,7 +353,14 @@
     // [t0, t1] zakresu "hours" i podpis o krotszej historii; null - za malo danych
     function timeRange(data, hours) {
 
-        if (!data || !data.t || data.t.length < 2) { return null; }
+        if (!data || !data.t || data.t.length < 2) {
+            return data && data.day_start && data.t ? { t0: data.day_start, t1: data.day_end, note: "Brak zapisanych danych z tego dnia" } : null;
+        }
+
+        // cala doba z archiwum (?date=) - os od 00:00 do 24:00 tego dnia
+        if (data.day_start) {
+            return { t0: data.day_start, t1: data.day_end, note: "" };
+        }
 
         var t1 = Math.max(data.now || 0, data.t[data.t.length - 1]);
         var t0 = t1 - (hours || HOURS) * 3600;
@@ -367,9 +374,10 @@
         return { t0: t0, t1: t1, note: note };
     }
 
-    // historia z ostatnich "hours" godzin (dane do chartHtml)
-    function fetchHistory(hours) {
-        return fetch("/heating/history?hours=" + (hours || HOURS)).then(function (r) { return r.json(); });
+    // historia z ostatnich "hours" godzin albo cala doba "date" (RRRR-MM-DD, inna niz dzisiaj) z
+    // archiwum sterownika (7 dni) - dane do chartHtml
+    function fetchHistory(hours, date) {
+        return fetch("/heating/history?hours=" + (hours || HOURS) + (date ? "&date=" + date : "")).then(function (r) { return r.json(); });
     }
 
     window.__heatingChart = { chartHtml: chartHtml, catalog: catalog, defaultCharts: defaultCharts, timeRange: timeRange, fetchHistory: fetchHistory };

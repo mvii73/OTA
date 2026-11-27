@@ -25,10 +25,14 @@
         return (collection[id] && collection[id].name) || (id + " (brak)");
     }
 
-    // udzial kubatury jak w obliczeniach zapotrzebowania (ems/heating_sim.py): tylko pomieszczenia
-    // z termostatem, bez podanej kubatury - srednia z pozostalych, bez zadnej - po rowno
+    // udzial kubatury jak w obliczeniach zapotrzebowania (ems/heating_sim.py): pomieszczenia
+    // z termostatem albo z grzejnikiem bez sterowania (np. korytarz), bez podanej kubatury -
+    // srednia z pozostalych, bez zadnej - po rowno
     function volumeShares(rooms) {
-        var ids = Object.keys(rooms).filter(function (id) { return rooms[id].thermostat_device_id; });
+        var ids = Object.keys(rooms).filter(function (id) {
+            var r = rooms[id];
+            return r.thermostat_device_id || (r.free_radiator && r.free_radiator_temp != null);
+        });
         var known = ids.filter(function (id) { return rooms[id].volume_m3; });
         var avg = known.length ? known.reduce(function (s, id) { return s + rooms[id].volume_m3; }, 0) / known.length : 1;
         var used = {}, total = 0;
@@ -66,7 +70,7 @@
             icon("humidity_percentage", "Czujnik wilgotności", room.humidity_sensor_id, sensors) +
             icon("sensor_occupied", "Czujnik obecności", room.presence_sensor_id, sensors);
 
-        var title = !share ? "Bez termostatu - nie wchodzi do zapotrzebowania kotła"
+        var title = !share ? "Bez termostatu i bez grzejnika bez sterowania - nie wchodzi do zapotrzebowania kotła"
             : "Udział kubatury: " + (share.known ? num(share.m3) + " m³" : share.any ? "średnia " + num(share.m3) + " m³" : "kubatura nie podana - po równo") +
               (share.any ? " z " + num(share.total) + " m³" : "");
         html += "<span class=\"room-share" + (share ? "" : " room-icon-off") + "\" title=\"" + escapeHtml(title) + "\">" +

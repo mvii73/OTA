@@ -568,8 +568,12 @@
         var d = state.heating;
         if (!d || d.error) { host.innerHTML = "<div class=\"hh-empty\">" + (d ? "Błąd: " + esc(d.error) : "Wczytywanie…") + "</div>"; return; }
         var m = heatingModel(d);
+        var away = d.away && d.away.active;
         el("hh-mode").innerHTML = "<span class=\"hh-mode-label\">Tryb pracy: <b>" + esc((MODES[m.strategy] || [m.strategy || "--"])[0]) + "</b></span>" +
-            "<button type=\"button\" class=\"hh-btn hh-btn-mode\" data-act=\"mode\">Zmień tryb</button>";
+            "<button type=\"button\" class=\"hh-btn hh-btn-mode\" data-act=\"mode\">Zmień tryb</button>" +
+            (d.away ? "<button type=\"button\" class=\"hh-btn hh-btn-mode" + (away ? " hh-btn-red" : "") + "\" data-act=\"away\"" +
+                (away ? " title=\"" + esc((d.away.phase === "return" ? "Powrót do harmonogramu - koniec " : "Do ") + d.away.until_local) + "\"" : "") +
+                ">Tryb Away</button>" : "");
         host.innerHTML = "<div class=\"hh-scene\">" + heatingHtml(m) + "</div>";
     }
 
@@ -671,6 +675,46 @@
             "<button type=\"button\" class=\"hh-btn\" data-act=\"close\">Zamknij</button></div>");
     }
 
+    // tryb Away (ems/away.py): wlaczony - biezace wartosci, wylaczony - domyslne z konfiguracji
+    // (temperatura, koniec = teraz + czas trwania); krok +/- z konfiguracji
+    function awayPopup(a) {
+        var def = a.defaults || {}, on = !!a.active;
+        var temp = on ? a.temp : def.temp, until = (on ? a.until_local : def.until_local) || "";
+        var step = def.step || 0.5;
+        var info = on
+            ? "Włączony do <b>" + esc(a.until_local) + "</b>. " + (a.phase === "return"
+                ? "Pomieszczenia już wracają do harmonogramu (od " + esc(a.return_local) + ")."
+                : "Powrót do harmonogramu od " + esc(a.return_local) + ".")
+            : "Wszystkie pomieszczenia dostaną jedną stałą temperaturę do wybranego końca; " +
+              (def.return_h ? fmt(def.return_h, 1, " h") + " przed końcem wracają do harmonogramu." : "o godzinie końca wracają do harmonogramu.");
+        openPopup("<h3>Tryb Away</h3><p class=\"hh-muted\">" + info + "</p>" +
+            "<div class=\"hh-stepper\"><button type=\"button\" class=\"hh-btn\" data-step=\"-" + step + "\">−</button>" +
+            "<span id=\"hh-set\" data-v=\"" + temp + "\" data-min=\"" + (def.min || 5) + "\" data-max=\"" + (def.max || 25) + "\">" + fmt(temp, 1, " °C") + "</span>" +
+            "<button type=\"button\" class=\"hh-btn\" data-step=\"" + step + "\">+</button></div>" +
+            "<div class=\"hh-away-end\"><span>Koniec</span><input type=\"date\" id=\"hh-away-date\" value=\"" + esc(until.slice(0, 10)) + "\">" +
+            "<input type=\"time\" id=\"hh-away-time\" step=\"3600\" value=\"" + esc(until.slice(11, 16)) + "\"></div>" +
+            "<div class=\"hh-modal-actions hh-modal-actions-center\"><button type=\"button\" class=\"hh-btn hh-btn-red\" data-act=\"away-set\">" + (on ? "Zapisz" : "Włącz") + "</button>" +
+            (on ? "<button type=\"button\" class=\"hh-btn\" data-act=\"away-cancel\">Wyłącz tryb Away</button>" : "") +
+            "<button type=\"button\" class=\"hh-btn\" data-act=\"close\">Zamknij</button></div>");
+    }
+
+    var AWAY_ERRORS = {
+        invalid_temp: "Nieprawidłowa temperatura.",
+        invalid_until: "Podaj datę i godzinę końca.",
+        until_too_soon: "Koniec musi być co najmniej 10 minut od teraz.",
+        until_too_far: "Koniec najwyżej 60 dni od teraz."
+    };
+
+    function awaySend(body) {
+        api("/heating/away", "POST", body).then(function (res) {
+            if (res && res.ok === false) { window.alert(AWAY_ERRORS[res.error] || "Nie udało się: " + (res.error || "błąd")); return; }
+            closePopup();
+            // nowe zadane glowic - cykl pomieszczen od razu, kafle po chwili
+            load();
+            [4000, 10000].forEach(function (ms) { setTimeout(load, ms); });
+        }).catch(function () { window.alert("Brak odpowiedzi kontrolera."); });
+    }
+
     function modePopup(m) {
         openPopup("<h3>Model sterowania</h3><div class=\"hh-modes\">" + Object.keys(MODES).map(function (k) {
             var avail = m.modes.indexOf(k) >= 0;
@@ -752,6 +796,12 @@
 
         if (act === "close") { closePopup(); }
         else if (act === "mode") { modePopup(heatingModel(state.heating)); }
+        else if (act === "away") { if (state.heating && state.heating.away) { awayPopup(state.heating.away); } }
+        else if (act === "away-set") {
+            awaySend({ action: "set", temp: Number(el("hh-set").dataset.v),
+                until: el("hh-away-date").value + " " + el("hh-away-time").value });
+        }
+        else if (act === "away-cancel") { awaySend({ action: "cancel" }); }
         else if (act === "mode-set") { after(api("/heating/config", "POST", { strategy: actEl.dataset.mode })); }
         else if (act === "room-set") { afterRoom(api("/rooms/" + encodeURIComponent(actEl.dataset.room) + "/manual", "POST", { setpoint: Number(el("hh-set").dataset.v) })); }
         else if (act === "room-cancel") { afterRoom(api("/rooms/" + encodeURIComponent(actEl.dataset.room) + "/manual", "POST", { action: "cancel" })); }
@@ -804,6 +854,18 @@
     function unstore(key) { try { window.localStorage.removeItem(key); } catch (e) { /* brak dostepu */ } }
 
     function chartHours() { return Number(el("hh-chart-hours").value) || 6; }
+
+    // dzien wykresu: dzisiaj (domyslnie) - ostatnie 6/12/24 h, inny - cala doba z archiwum
+    function todayText() {
+        var d = new Date();
+        return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
+    }
+    function chartDate() {
+        var v = el("hh-chart-date").value;
+        return v && v !== todayText() ? v : null;
+    }
+    // klucz pobranych danych: zakres albo dzien
+    function chartKey() { var d = chartDate(); return d ? "d" + d : "h" + chartHours(); }
 
     // ---------- lista wykresow ----------
     // Wykresy uzytkownika: [{id, title, keys: [klucze www/heating_chart.js::catalog()]}]. Zmiany nie
@@ -1051,21 +1113,22 @@
 
     // historia pobierana ponownie po zmianie zakresu albo gdy starsza niz CHART_REFRESH_MS
     function loadChart() {
-        var body = el("hh-chart"), hours = chartHours();
+        var body = el("hh-chart"), hours = chartHours(), date = chartDate(), key = chartKey();
         if (!body || !window.__heatingChart) { return Promise.resolve(); }
         var c = state.chart;
-        if (chartsLoaded && c && c.hours === hours && Date.now() - c.at < CHART_REFRESH_MS) { return Promise.resolve(); }
+        if (chartsLoaded && c && c.key === key && (date || Date.now() - c.at < CHART_REFRESH_MS)) { return Promise.resolve(); }
         if (!c) { renderChart(); }
         // po kolei: lista wykresow, potem historia (serwer obsluguje jedno zadanie naraz)
         var first = !chartsLoaded;
         return fetchCharts()
             .then(function () { if (first) { renderChart(); } })
-            .then(function () { return c && c.hours === hours && Date.now() - c.at < CHART_REFRESH_MS ? null : window.__heatingChart.fetchHistory(hours); })
+            .then(function () { return c && c.key === key && (date || Date.now() - c.at < CHART_REFRESH_MS) ? null : window.__heatingChart.fetchHistory(hours, date); })
             .then(function (data) {
                 if (!data) { return; }
-                if (hours !== chartHours()) { return; }   // w miedzyczasie wybrano inny zakres
+                if (key !== chartKey()) { return; }   // w miedzyczasie wybrano inny zakres / dzien
+                if (data.days && data.days.length) { el("hh-chart-date").min = data.days[0]; }
                 var firstData = !state.chart || !state.chart.data;
-                state.chart = { hours: hours, at: Date.now(), data: data };
+                state.chart = { hours: hours, key: key, at: Date.now(), data: data };
                 // pierwsze dane - pelny widok (lista wartosci z pomieszczeniami z historii)
                 if (firstData) { renderChart(); } else { refreshPlots(); }
             })
@@ -1106,6 +1169,14 @@
         var hours = stored(HOURS_KEY);
         if (hours && hasOption(hoursSel, hours)) { hoursSel.value = hours; }
         hoursSel.addEventListener("change", function () { store(HOURS_KEY, hoursSel.value); loadChart(); });
+        // dzien: domyslnie dzisiaj (bez zapamietywania), inny - cala doba, zakres godzin wylaczony
+        var dateInp = el("hh-chart-date");
+        dateInp.value = dateInp.max = todayText();
+        dateInp.addEventListener("change", function () {
+            if (!dateInp.value || dateInp.value > todayText()) { dateInp.value = todayText(); }
+            hoursSel.disabled = !!chartDate();
+            loadChart();
+        });
         el("hh-chart-pane").addEventListener("click", onChartClick);
         el("hh-chart").addEventListener("change", onChartChange);
         // nazwa wykresu na biezaco (zdarzenie "change" dopiero po wyjsciu z pola)

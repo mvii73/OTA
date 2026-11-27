@@ -629,7 +629,9 @@ def tick():
     # ems/rooms_heating.py)
     # pelne przeliczenie co ROOMS_HEATING_INTERVAL_S - koryguje i odswieza cache
     # pierwszy odczyt okna obecnosci (np. po starcie) - od razu (device_schedule.presence_arrived())
-    if now - last_rooms_heating > getattr(config, "ROOMS_HEATING_INTERVAL_S", 300) or device_schedule.presence_arrived():
+    # tryb Away wlaczony/wylaczony - od razu (rooms_heating.request_tick(), ems/away.py)
+    if now - last_rooms_heating > getattr(config, "ROOMS_HEATING_INTERVAL_S", 300) or device_schedule.presence_arrived() \
+            or rooms_heating.tick_requested():
 
         oled_status.step("Glowice", "LAN")
 

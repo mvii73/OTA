@@ -147,6 +147,10 @@
 .hh-btn-green { background: #16a34a; border-color: #16a34a; color: #fff; }
 .hh-btn-green-outline { background: transparent; border-color: #16a34a; color: #16a34a; }
 .hh-btn-orange { background: #ea580c; border-color: #ea580c; color: #fff; }
+.hh-btn-red { background: #dc2626; border-color: #dc2626; color: #fff; }
+.hh-mode .hh-btn-red, .hh-btn-mode.hh-btn-red { background: #dc2626; border-color: #dc2626; }
+.hh-away-end { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px; margin: 0 0 18px; font-size: 15px; }
+.hh-away-end input { font-size: 16px; padding: 6px 8px; }
 .hh-btn-orange-outline { background: transparent; border-color: #ea580c; color: #ea580c; }
 .hh-segs { display: flex; gap: 0; justify-content: center; margin: 0 0 6px; }
 .hh-seg { flex: 1; max-width: 160px; padding: 8px 12px; font: inherit; cursor: pointer; background: transparent; color: var(--text); border: 1px solid #ea580c; }
